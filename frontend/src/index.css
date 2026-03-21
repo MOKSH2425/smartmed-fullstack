@@ -1,0 +1,103 @@
+:root {
+  font-family: 'Poppins', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  /* --- LIGHT MODE --- */
+  
+  /* 1. New Background: Not white! It is a soft, cool gray-blue. */
+  --bg-color: #eef2f6;       
+  
+  /* 2. Text is dark navy, softer than black */
+  --text-color: #334155;     
+  
+  /* 3. Cards stay white to POP against the gray background */
+  --card-bg: #ffffff;        
+  
+  /* 4. Primary Brand Colors */
+  --primary: #2563eb;        /* Vibrant Blue */
+  --accent: #06b6d4;         /* Cyan/Teal */
+  --border-color: #e2e8f0;
+  
+  /* 5. Softer Shadow for depth */
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+/* --- DARK MODE --- */
+body.dark-mode {
+  --bg-color: #0f172a !important;   /* Deep Midnight Blue */
+  --text-color: #e2e8f0 !important; /* Soft White */
+  --card-bg: #1e293b !important;    /* Lighter Midnight Blue */
+  --primary: #3b82f6 !important;    /* Neon Blue */
+  --accent: #22d3ee !important;     /* Neon Cyan */
+  --border-color: #334155 !important;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+}
+
+/* --- GLOBAL STYLES --- */
+body {
+  margin: 0;
+  padding: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+#root {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* --- CARD STYLING --- */
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary);
+}
+
+/* --- BUTTON STYLING --- */
+.btn {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: white;
+  border: none;
+  border-radius: 99px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+  transition: opacity 0.2s;
+}
+
+.btn:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+/* --- DARK MODE FORCED OVERRIDES --- */
+body.dark-mode .card,
+body.dark-mode main {
+  background-color: var(--card-bg) !important;
+  color: var(--text-color) !important;
+  border-color: var(--border-color) !important;
+}
+
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+  background-color: #334155 !important;
+  color: white !important;
+  border: 1px solid #475569 !important;
+}

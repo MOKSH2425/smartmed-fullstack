@@ -1,0 +1,155 @@
+/* SMARTMED Global Styles */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #f9fafb;
+  margin: 0;
+  padding: 0;
+  color: #1f2937;
+}
+
+
+.hero {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: white;
+  padding: 4rem 2rem;
+  text-align: center;
+  border-radius: 1rem;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+.hero h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+.hero p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #2563eb, #1d4ed8);
+  color: #fff;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+}
+.btn:hover {
+  background: linear-gradient(90deg, #1d4ed8, #2563eb);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);
+}
+
+/* Cards */
+.card {
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 1.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  text-align: center; /* Added this based on your inline styles */
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+/* Headers & Footers */
+header {
+  background: linear-gradient(90deg, #2563eb, #1d4ed8);
+  color: white;
+  padding: 1rem 2rem;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+footer {
+  background: #1f2937;
+  color: #9ca3af;
+  text-align: center;
+  padding: 1rem;
+  margin-top: 2rem;
+  font-size: 0.9rem;
+}
+/* --- MOBILE RESPONSIVENESS --- */
+
+/* For Tablets and Mobile Phones (Screens smaller than 768px) */
+@media (max-width: 768px) {
+  
+  /* 1. Hide the long slogan */
+  .logo-slogan {
+    display: none !important;
+  }
+
+  /* 2. Shrink the header padding */
+  header {
+    padding: 1rem !important;
+  }
+
+  /* 3. Reduce the main page padding */
+  main {
+    padding: 1rem !important;
+  }
+
+  /* 4. Make Buttons full width (Easier to tap with thumbs) */
+  .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  /* 5. Adjust Card Grid gaps */
+  div[style*="display: grid"] {
+    gap: 1rem !important;
+  }
+  
+  /* 6. Fix Hero Section Text Size */
+  .hero h1 {
+    font-size: 1.8rem !important;
+  }
+  .hero p {
+    font-size: 1rem !important;
+  }
+}
+
+/* For Very Small Phones (Screens smaller than 400px) */
+@media (max-width: 400px) {
+  .profile-text {
+    display: none; /* Just show the User Icon, hide the text "Profile" */
+  }
+}
+/* --- GLOBAL LAYOUT FIXES (NUCLEAR OPTION) --- */
+
+/* 1. Force main to take full width */
+main {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 2rem !important; /* Keep some breathing room */
+  box-sizing: border-box;
+}
+
+/* 2. Force the Dashboard Grid to stretch */
+div[style*="display: grid"] {
+  display: grid !important;
+  /* This tells the grid: "Fill the whole row with as many cards as fit" */
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+  gap: 2rem !important;
+  width: 100% !important;
+  justify-content: center; /* Centers the grid items if there are only a few */
+}
+
+/* 3. Hero Section fixes */
+.hero {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+  margin: 0 auto;
+}

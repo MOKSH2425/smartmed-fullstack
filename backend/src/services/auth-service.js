@@ -2,7 +2,7 @@ const { env } = require("../config/env");
 const { createToken } = require("../utils/token");
 const { hashPassword, verifyPassword } = require("../utils/password");
 const { HttpError } = require("../utils/http-error");
-const { updateCollection } = require("../store/file-store");
+const { UserModel } = require("../models/user-model");
 const {
   sanitizeUser,
   normalizeEmail,
@@ -15,7 +15,7 @@ const { createStarterReportsForUser } = require("./report-service");
 
 const createAuthResponse = (user) => ({
   token: createToken(
-    { sub: user.id, email: user.email },
+    { sub: String(user._id), email: user.email },
     env.tokenSecret,
     env.tokenTtlHours * 60 * 60
   ),
@@ -39,28 +39,22 @@ const signup = async ({ name, email, password }) => {
     throw new HttpError(400, "Password must be at least 8 characters long.");
   }
 
-  let createdUser = null;
+  const existingUser = await UserModel.findOne({ email: normalizedEmail }).lean();
+  if (existingUser) {
+    throw new HttpError(409, "An account with this email already exists.");
+  }
+
   const passwordHash = await hashPassword(rawPassword);
-
-  await updateCollection("users", async (users) => {
-    const existingUser = users.find((user) => user.email === normalizedEmail);
-
-    if (existingUser) {
-      throw new HttpError(409, "An account with this email already exists.");
-    }
-
-    createdUser = createUserRecord({
+  const createdUser = await UserModel.create(
+    createUserRecord({
       name: trimmedName,
       email: normalizedEmail,
       passwordHash,
-    });
+    })
+  );
 
-    users.push(createdUser);
-    return users;
-  });
-
-  await createStarterReportsForUser(createdUser.id);
-  return createAuthResponse(createdUser);
+  await createStarterReportsForUser(createdUser._id);
+  return createAuthResponse(createdUser.toObject());
 };
 
 const login = async ({ email, password }) => {

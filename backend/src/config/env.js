@@ -1,4 +1,3 @@
-const path = require("path");
 const dotenv = require("dotenv");
 
 dotenv.config();
@@ -27,8 +26,8 @@ const env = {
   frontendOrigins,
   tokenSecret: process.env.TOKEN_SECRET || "smartmed-dev-secret-change-me",
   tokenTtlHours: parseNumber(process.env.TOKEN_TTL_HOURS, 24),
-  dataDir: process.env.DATA_DIR || path.join(__dirname, "../../data"),
-  frontendDistDir: path.join(__dirname, "../../../frontend/dist"),
+  mongoUri: process.env.MONGODB_URI || "",
+  frontendDistDir: require("path").join(__dirname, "../../../frontend/dist"),
 };
 
 module.exports = { env };

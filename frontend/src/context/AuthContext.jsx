@@ -4,12 +4,13 @@ import { AuthContext } from "./AuthContextValue";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [token, setToken] = useState(() => authTokenStorage.get());
   const [authReady, setAuthReady] = useState(() => !authTokenStorage.get());
 
   useEffect(() => {
-    const token = authTokenStorage.get();
+    const currentToken = authTokenStorage.get();
 
-    if (!token) {
+    if (!currentToken) {
       return undefined;
     }
 
@@ -22,10 +23,20 @@ export const AuthProvider = ({ children }) => {
           setUser(data.user);
         }
       })
-      .catch(() => {
-        authTokenStorage.clear();
+      .catch((error) => {
+        if (error?.status === 401 || error?.status === 403) {
+          authTokenStorage.clear();
+          if (!ignore) {
+            setToken(null);
+            setUser(null);
+          }
+          return;
+        }
+
+        console.warn("Session refresh failed, but auth token was preserved.", error);
+
         if (!ignore) {
-          setUser(null);
+          setToken(currentToken);
         }
       })
       .finally(() => {
@@ -41,6 +52,7 @@ export const AuthProvider = ({ children }) => {
 
   const completeAuth = (result) => {
     authTokenStorage.set(result.token);
+    setToken(result.token);
     setUser(result.user);
     setAuthReady(true);
     return result.user;
@@ -51,6 +63,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     authTokenStorage.clear();
+    setToken(null);
     setUser(null);
     setAuthReady(true);
   };
@@ -60,7 +73,7 @@ export const AuthProvider = ({ children }) => {
       value={{
         user,
         authReady,
-        isAuthenticated: Boolean(user),
+        isAuthenticated: Boolean(token),
         login,
         signup,
         logout,

@@ -1,4 +1,4 @@
-const { readCollection } = require("../store/file-store");
+const { SymptomModel } = require("../models/symptom-model");
 
 const normalize = (value) => String(value || "").trim().toLowerCase();
 
@@ -12,7 +12,7 @@ const getRecommendation = async (symptomText) => {
     };
   }
 
-  const symptoms = await readCollection("symptoms");
+  const symptoms = await SymptomModel.find().lean();
   const match = symptoms.find((item) =>
     item.keywords.some((keyword) => query.includes(normalize(keyword)) || normalize(keyword).includes(query))
   );

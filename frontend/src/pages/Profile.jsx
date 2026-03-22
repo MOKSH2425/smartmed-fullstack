@@ -20,20 +20,25 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [user, setProfile] = useState(emptyProfile);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    const loadProfile = async () => {
-      try {
-        const data = await api.getProfile();
-        setProfile(data.profile);
-      } catch (error) {
-        toast.error(getErrorMessage(error, "Failed to load profile."));
-      } finally {
-        setLoading(false);
-      }
-    };
+  const loadProfile = async () => {
+    try {
+      setLoadError('');
+      setLoading(true);
+      const data = await api.getProfile();
+      setProfile(data.profile);
+    } catch (error) {
+      const message = getErrorMessage(error, "Failed to load profile.");
+      setLoadError(message);
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     loadProfile();
   }, []);
 
@@ -75,6 +80,20 @@ const Profile = () => {
       <main style={{ padding: '2rem', maxWidth: '800px', margin: 'auto' }}>
         <div className="card" style={{ padding: '2rem' }}>
           <p>Loading profile...</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <main style={{ padding: '2rem', maxWidth: '800px', margin: 'auto' }}>
+        <div className="card" style={{ padding: '2rem', textAlign: 'center' }}>
+          <h3 style={{ marginTop: 0 }}>We couldn&apos;t load your profile right now.</h3>
+          <p style={{ opacity: 0.8 }}>{loadError}</p>
+          <button className="btn" onClick={loadProfile} style={{ marginTop: '1rem' }}>
+            Retry
+          </button>
         </div>
       </main>
     );

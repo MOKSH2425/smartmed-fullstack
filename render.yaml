@@ -9,6 +9,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
       - key: FRONTEND_URLS
         sync: false
       - key: TOKEN_SECRET

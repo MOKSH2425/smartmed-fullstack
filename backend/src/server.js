@@ -1,8 +1,10 @@
 const { app } = require("./app");
 const { env } = require("./config/env");
 const { bootstrapData } = require("./bootstrap/seed");
+const { connectToDatabase, disconnectFromDatabase } = require("./db/mongoose");
 
 const startServer = async (options = {}) => {
+  await connectToDatabase();
   const seedResult = await bootstrapData();
   const port = options.port ?? env.port;
 
@@ -21,6 +23,12 @@ const startServer = async (options = {}) => {
       `Demo login: ${seedResult.seededDemoUser.email} / ${seedResult.seededDemoUser.password}`
     );
   }
+
+  server.on("close", () => {
+    disconnectFromDatabase().catch((error) => {
+      console.error("Failed to close MongoDB connection cleanly:", error);
+    });
+  });
 
   return server;
 };

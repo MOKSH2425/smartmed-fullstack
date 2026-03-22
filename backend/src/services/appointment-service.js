@@ -1,16 +1,15 @@
-const crypto = require("crypto");
-const { readCollection, updateCollection } = require("../store/file-store");
+const { mongoose } = require("../db/mongoose");
 const { HttpError } = require("../utils/http-error");
 const { deriveAppointmentStatus, parseAppointmentStart } = require("../utils/appointment");
-const { getDoctorById } = require("./doctor-service");
+const { AppointmentModel } = require("../models/appointment-model");
+const { DoctorModel } = require("../models/doctor-model");
 
-const decorateAppointment = (appointment, doctorMap) => {
-  const doctor = doctorMap.get(appointment.doctorId);
+const decorateAppointment = (appointment, doctor) => {
   const status = deriveAppointmentStatus(appointment);
 
   return {
-    id: appointment.id,
-    doctorId: appointment.doctorId,
+    id: String(appointment._id),
+    doctorId: doctor ? String(doctor._id) : String(appointment.doctorId),
     doctorName: doctor?.name || "Unknown doctor",
     specialty: doctor?.specialty || "Unknown specialty",
     location: doctor?.location || "",
@@ -24,16 +23,12 @@ const decorateAppointment = (appointment, doctorMap) => {
 };
 
 const listAppointments = async (userId) => {
-  const [appointments, doctors] = await Promise.all([
-    readCollection("appointments"),
-    readCollection("doctors"),
-  ]);
-
-  const doctorMap = new Map(doctors.map((doctor) => [doctor.id, doctor]));
+  const appointments = await AppointmentModel.find({ userId })
+    .populate("doctorId")
+    .lean();
 
   return appointments
-    .filter((appointment) => appointment.userId === userId)
-    .map((appointment) => decorateAppointment(appointment, doctorMap))
+    .map((appointment) => decorateAppointment(appointment, appointment.doctorId))
     .sort((a, b) => {
       const first = parseAppointmentStart(a.date, a.time)?.getTime() || 0;
       const second = parseAppointmentStart(b.date, b.time)?.getTime() || 0;
@@ -50,7 +45,11 @@ const createAppointment = async (userId, input) => {
     throw new HttpError(400, "Doctor, date, and time are required to book an appointment.");
   }
 
-  const doctor = await getDoctorById(doctorId);
+  if (!mongoose.isValidObjectId(doctorId)) {
+    throw new HttpError(400, "Selected doctor id is invalid.");
+  }
+
+  const doctor = await DoctorModel.findById(doctorId).lean();
 
   if (!doctor) {
     throw new HttpError(404, "Selected doctor was not found.");
@@ -70,50 +69,37 @@ const createAppointment = async (userId, input) => {
     throw new HttpError(400, "Appointments must be booked for a future date and time.");
   }
 
-  let createdAppointment = null;
+  const doctorConflict = await AppointmentModel.findOne({
+    doctorId,
+    date,
+    time,
+    status: { $ne: "Cancelled" },
+  }).lean();
 
-  await updateCollection("appointments", async (appointments) => {
-    const doctorConflict = appointments.find(
-      (appointment) =>
-        appointment.doctorId === doctorId &&
-        appointment.date === date &&
-        appointment.time === time &&
-        appointment.status !== "Cancelled"
-    );
+  if (doctorConflict) {
+    throw new HttpError(409, "This time slot has already been booked. Please choose another slot.");
+  }
 
-    if (doctorConflict) {
-      throw new HttpError(409, "This time slot has already been booked. Please choose another slot.");
-    }
+  const userConflict = await AppointmentModel.findOne({
+    userId,
+    date,
+    time,
+    status: { $ne: "Cancelled" },
+  }).lean();
 
-    const userConflict = appointments.find(
-      (appointment) =>
-        appointment.userId === userId &&
-        appointment.date === date &&
-        appointment.time === time &&
-        appointment.status !== "Cancelled"
-    );
+  if (userConflict) {
+    throw new HttpError(409, "You already have an appointment scheduled for this time.");
+  }
 
-    if (userConflict) {
-      throw new HttpError(409, "You already have an appointment scheduled for this time.");
-    }
-
-    createdAppointment = {
-      id: crypto.randomUUID(),
-      userId,
-      doctorId,
-      date,
-      time,
-      status: "Upcoming",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    appointments.push(createdAppointment);
-    return appointments;
+  const createdAppointment = await AppointmentModel.create({
+    userId,
+    doctorId,
+    date,
+    time,
+    status: "Upcoming",
   });
 
-  const doctorMap = new Map([[doctor.id, doctor]]);
-  return decorateAppointment(createdAppointment, doctorMap);
+  return decorateAppointment(createdAppointment.toObject(), doctor);
 };
 
 module.exports = {

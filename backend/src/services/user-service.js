@@ -1,6 +1,5 @@
-const crypto = require("crypto");
-const { readCollection, updateCollection } = require("../store/file-store");
 const { HttpError } = require("../utils/http-error");
+const { UserModel } = require("../models/user-model");
 
 const allowedGenders = ["Male", "Female", "Other", "Prefer not to say"];
 
@@ -17,7 +16,7 @@ const defaultSettings = () => ({
 });
 
 const sanitizeUser = (user) => ({
-  id: user.id,
+  id: String(user._id),
   name: user.name,
   email: user.email,
   phone: user.phone || "",
@@ -33,34 +32,22 @@ const sanitizeUser = (user) => ({
 const normalizeEmail = (email) => String(email || "").trim().toLowerCase();
 const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
 
-const createUserRecord = ({ name, email, passwordHash, profile = {} }) => {
-  const timestamp = new Date().toISOString();
+const createUserRecord = ({ name, email, passwordHash, profile = {} }) => ({
+  name: String(name).trim(),
+  email: normalizeEmail(email),
+  passwordHash,
+  phone: profile.phone || "",
+  age: profile.age ?? null,
+  gender: profile.gender || "Prefer not to say",
+  bloodGroup: profile.bloodGroup || "",
+  address: profile.address || "",
+  settings: defaultSettings(),
+});
 
-  return {
-    id: crypto.randomUUID(),
-    name: String(name).trim(),
-    email: normalizeEmail(email),
-    passwordHash,
-    phone: profile.phone || "",
-    age: profile.age ?? "",
-    gender: profile.gender || "Prefer not to say",
-    bloodGroup: profile.bloodGroup || "",
-    address: profile.address || "",
-    settings: defaultSettings(),
-    createdAt: timestamp,
-    updatedAt: timestamp,
-  };
-};
+const getUserById = async (userId) => UserModel.findById(userId).lean();
 
-const getUserById = async (userId) => {
-  const users = await readCollection("users");
-  return users.find((user) => user.id === userId) || null;
-};
-
-const getUserByEmail = async (email) => {
-  const users = await readCollection("users");
-  return users.find((user) => user.email === normalizeEmail(email)) || null;
-};
+const getUserByEmail = async (email) =>
+  UserModel.findOne({ email: normalizeEmail(email) }).lean();
 
 const assertValidProfile = (input) => {
   const name = String(input.name || "").trim();
@@ -68,7 +55,7 @@ const assertValidProfile = (input) => {
   const address = String(input.address || "").trim();
   const bloodGroup = String(input.bloodGroup || "").trim();
   const gender = String(input.gender || "Prefer not to say").trim();
-  const ageValue = input.age === "" || input.age === null ? "" : Number(input.age);
+  const ageValue = input.age === "" || input.age === null ? null : Number(input.age);
 
   if (!name || name.length < 2) {
     throw new HttpError(400, "Name must be at least 2 characters long.");
@@ -78,7 +65,7 @@ const assertValidProfile = (input) => {
     throw new HttpError(400, "Gender value is not supported.");
   }
 
-  if (ageValue !== "" && (!Number.isInteger(ageValue) || ageValue < 0 || ageValue > 120)) {
+  if (ageValue !== null && (!Number.isInteger(ageValue) || ageValue < 0 || ageValue > 120)) {
     throw new HttpError(400, "Age must be a number between 0 and 120.");
   }
 
@@ -104,24 +91,15 @@ const getProfile = async (userId) => {
 
 const updateProfile = async (userId, input) => {
   const nextProfile = assertValidProfile(input);
-  let updatedUser = null;
+  const updatedUser = await UserModel.findByIdAndUpdate(
+    userId,
+    { ...nextProfile },
+    { new: true, runValidators: true, lean: true }
+  );
 
-  await updateCollection("users", async (users) => {
-    const index = users.findIndex((user) => user.id === userId);
-
-    if (index === -1) {
-      throw new HttpError(404, "User profile was not found.");
-    }
-
-    updatedUser = {
-      ...users[index],
-      ...nextProfile,
-      updatedAt: new Date().toISOString(),
-    };
-
-    users[index] = updatedUser;
-    return users;
-  });
+  if (!updatedUser) {
+    throw new HttpError(404, "User profile was not found.");
+  }
 
   return sanitizeUser(updatedUser);
 };
@@ -139,37 +117,30 @@ const getSettings = async (userId) => {
 const updateSettings = async (userId, input) => {
   const notifications = input.notifications || {};
   const security = input.security || {};
-  let updatedSettings = null;
 
-  await updateCollection("users", async (users) => {
-    const index = users.findIndex((user) => user.id === userId);
+  const updatedSettings = {
+    notifications: {
+      email: Boolean(notifications.email),
+      sms: Boolean(notifications.sms),
+      promos: Boolean(notifications.promos),
+    },
+    security: {
+      twoFactorAuth: Boolean(security.twoFactorAuth),
+      publicProfile: Boolean(security.publicProfile),
+    },
+  };
 
-    if (index === -1) {
-      throw new HttpError(404, "User settings were not found.");
-    }
+  const updatedUser = await UserModel.findByIdAndUpdate(
+    userId,
+    { settings: updatedSettings },
+    { new: true, runValidators: true, lean: true }
+  );
 
-    updatedSettings = {
-      notifications: {
-        email: Boolean(notifications.email),
-        sms: Boolean(notifications.sms),
-        promos: Boolean(notifications.promos),
-      },
-      security: {
-        twoFactorAuth: Boolean(security.twoFactorAuth),
-        publicProfile: Boolean(security.publicProfile),
-      },
-    };
+  if (!updatedUser) {
+    throw new HttpError(404, "User settings were not found.");
+  }
 
-    users[index] = {
-      ...users[index],
-      settings: updatedSettings,
-      updatedAt: new Date().toISOString(),
-    };
-
-    return users;
-  });
-
-  return updatedSettings;
+  return updatedUser.settings;
 };
 
 module.exports = {

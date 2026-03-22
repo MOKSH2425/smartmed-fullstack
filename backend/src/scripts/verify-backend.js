@@ -12,6 +12,10 @@ const makeFutureDate = () => {
 };
 
 const run = async () => {
+  if (!process.env.MONGODB_URI) {
+    throw new Error("Set MONGODB_URI before running backend verification.");
+  }
+
   const server = await startServer({ port: 0 });
   const address = server.address();
   const port = typeof address === "object" && address ? address.port : 5000;

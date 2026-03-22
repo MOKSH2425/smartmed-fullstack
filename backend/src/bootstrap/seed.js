@@ -1,67 +1,91 @@
-const crypto = require("crypto");
 const { doctors, symptoms, defaultUser, starterAppointments } = require("../config/seed-data");
-const { ensureDataFiles, readCollection, writeCollection, updateCollection } = require("../store/file-store");
 const { hashPassword } = require("../utils/password");
 const { createUserRecord } = require("../services/user-service");
 const { createStarterReportsForUser } = require("../services/report-service");
+const { UserModel } = require("../models/user-model");
+const { DoctorModel } = require("../models/doctor-model");
+const { SymptomModel } = require("../models/symptom-model");
+const { AppointmentModel } = require("../models/appointment-model");
 
 const bootstrapData = async () => {
-  await ensureDataFiles();
-
-  const existingDoctors = await readCollection("doctors");
-  if (existingDoctors.length === 0) {
-    await writeCollection("doctors", doctors);
+  const doctorCount = await DoctorModel.countDocuments();
+  if (doctorCount === 0) {
+    await DoctorModel.insertMany(
+      doctors.map((doctor) => ({
+        slug: doctor.id,
+        name: doctor.name,
+        specialty: doctor.specialty,
+        location: doctor.location,
+        clinic: doctor.clinic,
+        exp: doctor.exp,
+        rating: doctor.rating,
+        about: doctor.about,
+        availableSlots: doctor.availableSlots,
+      }))
+    );
   }
 
-  const existingSymptoms = await readCollection("symptoms");
-  if (existingSymptoms.length === 0) {
-    await writeCollection("symptoms", symptoms);
+  const symptomCount = await SymptomModel.countDocuments();
+  if (symptomCount === 0) {
+    await SymptomModel.insertMany(symptoms);
   }
 
-  let users = await readCollection("users");
-  let seededUser = users.find((user) => user.email === defaultUser.email) || null;
+  let seededUser = await UserModel.findOne({ email: defaultUser.email }).lean();
 
-  if (users.length === 0) {
+  if (!seededUser) {
     const passwordHash = await hashPassword(defaultUser.password);
-    seededUser = createUserRecord({
-      name: defaultUser.name,
-      email: defaultUser.email,
-      passwordHash,
-      profile: {
-        phone: defaultUser.phone,
-        age: defaultUser.age,
-        gender: defaultUser.gender,
-        bloodGroup: defaultUser.bloodGroup,
-        address: defaultUser.address,
-      },
-    });
+    const createdUser = await UserModel.create(
+      createUserRecord({
+        name: defaultUser.name,
+        email: defaultUser.email,
+        passwordHash,
+        profile: {
+          phone: defaultUser.phone,
+          age: defaultUser.age,
+          gender: defaultUser.gender,
+          bloodGroup: defaultUser.bloodGroup,
+          address: defaultUser.address,
+        },
+      })
+    );
 
-    users = [seededUser];
-    await writeCollection("users", users);
+    seededUser = createdUser.toObject();
   }
 
   if (seededUser) {
-    await createStarterReportsForUser(seededUser.id);
+    await createStarterReportsForUser(seededUser._id);
 
-    await updateCollection("appointments", async (appointments) => {
-      const seededAppointments = appointments.filter(
-        (appointment) => appointment.userId === seededUser.id
-      );
-
-      if (seededAppointments.length > 0) {
-        return appointments;
-      }
-
-      const nextAppointments = starterAppointments.map((appointment) => ({
-        id: crypto.randomUUID(),
-        userId: seededUser.id,
-        ...appointment,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      }));
-
-      return [...appointments, ...nextAppointments];
+    const seededAppointments = await AppointmentModel.countDocuments({
+      userId: seededUser._id,
     });
+
+    if (seededAppointments === 0) {
+      const doctorDocs = await DoctorModel.find({
+        slug: { $in: starterAppointments.map((appointment) => appointment.doctorId) },
+      }).lean();
+
+      const doctorIdBySlug = new Map(doctorDocs.map((doctor) => [doctor.slug, doctor._id]));
+
+      await AppointmentModel.insertMany(
+        starterAppointments
+          .map((appointment) => {
+            const doctorObjectId = doctorIdBySlug.get(appointment.doctorId);
+
+            if (!doctorObjectId) {
+              return null;
+            }
+
+            return {
+              userId: seededUser._id,
+              doctorId: doctorObjectId,
+              date: appointment.date,
+              time: appointment.time,
+              status: appointment.status,
+            };
+          })
+          .filter(Boolean)
+      );
+    }
   }
 
   return {

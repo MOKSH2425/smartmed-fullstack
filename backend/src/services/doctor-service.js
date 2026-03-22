@@ -1,4 +1,6 @@
-const { readCollection } = require("../store/file-store");
+const { mongoose } = require("../db/mongoose");
+const { DoctorModel } = require("../models/doctor-model");
+const { AppointmentModel } = require("../models/appointment-model");
 
 const matchesFilter = (value, filterValue) => {
   if (!filterValue || filterValue === "All") {
@@ -8,11 +10,25 @@ const matchesFilter = (value, filterValue) => {
   return String(value).toLowerCase() === String(filterValue).toLowerCase();
 };
 
+const sanitizeDoctor = (doctor) => ({
+  id: String(doctor._id),
+  slug: doctor.slug,
+  name: doctor.name,
+  specialty: doctor.specialty,
+  location: doctor.location,
+  clinic: doctor.clinic,
+  exp: doctor.exp,
+  rating: doctor.rating,
+  about: doctor.about,
+  availableSlots: doctor.availableSlots,
+});
+
 const listDoctors = async ({ location, specialty, search }) => {
-  const doctors = await readCollection("doctors");
+  const doctors = await DoctorModel.find().lean();
   const searchValue = String(search || "").trim().toLowerCase();
 
   return doctors
+    .map(sanitizeDoctor)
     .filter((doctor) => matchesFilter(doctor.location, location))
     .filter((doctor) => matchesFilter(doctor.specialty, specialty))
     .filter((doctor) => {
@@ -29,52 +45,49 @@ const listDoctors = async ({ location, specialty, search }) => {
 };
 
 const getDoctorById = async (doctorId) => {
-  const doctors = await readCollection("doctors");
-  return doctors.find((doctor) => doctor.id === doctorId) || null;
+  if (!mongoose.isValidObjectId(doctorId)) {
+    return null;
+  }
+
+  const doctor = await DoctorModel.findById(doctorId).lean();
+  return doctor ? sanitizeDoctor(doctor) : null;
 };
 
 const listPreviousDoctors = async (userId) => {
-  const [appointments, doctors] = await Promise.all([
-    readCollection("appointments"),
-    readCollection("doctors"),
-  ]);
+  const appointments = await AppointmentModel.find({ userId })
+    .sort({ date: -1, time: -1 })
+    .populate("doctorId")
+    .lean();
 
-  const doctorMap = new Map(doctors.map((doctor) => [doctor.id, doctor]));
   const byDoctor = new Map();
 
-  appointments
-    .filter((appointment) => appointment.userId === userId)
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
-    .forEach((appointment) => {
-      if (byDoctor.has(appointment.doctorId)) {
-        return;
-      }
+  appointments.forEach((appointment) => {
+    const doctor = appointment.doctorId;
 
-      const doctor = doctorMap.get(appointment.doctorId);
+    if (!doctor || byDoctor.has(String(doctor._id))) {
+      return;
+    }
 
-      if (!doctor) {
-        return;
-      }
-
-      byDoctor.set(appointment.doctorId, {
-        id: doctor.id,
-        name: doctor.name,
-        specialty: doctor.specialty,
-        clinic: doctor.clinic,
-        location: doctor.location,
-        rating: doctor.rating,
-        lastVisit: new Date(appointment.date).toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "short",
-          day: "2-digit",
-        }),
-      });
+    byDoctor.set(String(doctor._id), {
+      id: String(doctor._id),
+      name: doctor.name,
+      specialty: doctor.specialty,
+      clinic: doctor.clinic,
+      location: doctor.location,
+      rating: doctor.rating,
+      lastVisit: new Date(appointment.date).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      }),
     });
+  });
 
   return Array.from(byDoctor.values());
 };
 
 module.exports = {
+  sanitizeDoctor,
   listDoctors,
   getDoctorById,
   listPreviousDoctors,

@@ -49,6 +49,7 @@ Create a Render Web Service connected to this GitHub repo and set:
 Environment variables:
 
 - `NODE_ENV=production`
+- `MONGODB_URI=<your-mongodb-connection-string>`
 - `TOKEN_SECRET=<your-long-random-secret>`
 - `FRONTEND_URLS=https://your-vercel-domain.vercel.app`
 
@@ -73,5 +74,5 @@ npm run build
 
 ## Notes
 
-- The backend currently uses JSON file storage in `backend/data`.
-- This is fine for demos and single-instance hosting, but for long-term production you should move to a database such as Postgres or MongoDB.
+- The backend now uses MongoDB through Mongoose.
+- You must set `MONGODB_URI` in local development and in Render before the backend can start.

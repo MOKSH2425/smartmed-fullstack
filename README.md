@@ -72,6 +72,20 @@ npm run lint
 npm run build
 ```
 
+Backend automated API tests:
+
+```powershell
+cd backend
+npm test
+```
+
+Frontend end-to-end tests:
+
+```powershell
+cd frontend
+npm run test:e2e
+```
+
 ## Notes
 
 - The backend now uses MongoDB through Mongoose.

@@ -14,10 +14,22 @@ const parseOrigins = (value) =>
     .filter(Boolean);
 
 const frontendOrigins = parseOrigins(process.env.FRONTEND_URLS);
+const localFrontendOrigins = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "http://localhost:4173",
+  "http://127.0.0.1:4173",
+];
 
 if (frontendOrigins.length === 0) {
-  frontendOrigins.push(process.env.FRONTEND_URL || "http://localhost:5173");
+  frontendOrigins.push(...localFrontendOrigins);
 }
+
+localFrontendOrigins.forEach((origin) => {
+  if (!frontendOrigins.includes(origin)) {
+    frontendOrigins.push(origin);
+  }
+});
 
 const env = {
   appName: "SmartMed API",

@@ -94,7 +94,7 @@ const updateProfile = async (userId, input) => {
   const updatedUser = await UserModel.findByIdAndUpdate(
     userId,
     { ...nextProfile },
-    { new: true, runValidators: true, lean: true }
+    { returnDocument: "after", runValidators: true, lean: true }
   );
 
   if (!updatedUser) {
@@ -133,7 +133,7 @@ const updateSettings = async (userId, input) => {
   const updatedUser = await UserModel.findByIdAndUpdate(
     userId,
     { settings: updatedSettings },
-    { new: true, runValidators: true, lean: true }
+    { returnDocument: "after", runValidators: true, lean: true }
   );
 
   if (!updatedUser) {

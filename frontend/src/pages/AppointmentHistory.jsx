@@ -14,7 +14,7 @@ const AppointmentHistory = () => {
         const data = await api.getAppointments();
         setAppointments(data.appointments);
       } catch (error) {
-        toast.error(getErrorMessage(error, "Failed to load appointments."));
+        toast.error(getErrorMessage(error, 'Failed to load appointments.'));
       } finally {
         setLoading(false);
       }
@@ -24,46 +24,59 @@ const AppointmentHistory = () => {
   }, []);
 
   return (
-    <main style={{ padding: '2rem', maxWidth: '800px', margin: 'auto' }}>
-      <button onClick={() => navigate(-1)} className="btn" style={{ marginBottom: '1rem', background: 'transparent', color: 'var(--text-color)', border: '1px solid var(--border-color)' }}>Back</button>
+    <main className="content-shell">
+      <button type="button" onClick={() => navigate(-1)} className="btn" style={{ width: 'fit-content' }}>
+        Back to previous page
+      </button>
 
-      <h2 style={{ marginBottom: '2rem', textAlign: 'center', color: 'var(--primary)' }}>Appointment History</h2>
+      <section className="dashboard-hero">
+        <p className="section-subtitle" style={{ textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 800 }}>
+          Care timeline
+        </p>
+        <h1 className="section-title" style={{ marginTop: '0.35rem' }}>
+          Appointment history
+        </h1>
+        <p>
+          Review upcoming and completed visits, and jump back into booking whenever
+          you need another consultation.
+        </p>
+      </section>
 
       {loading ? (
-        <div className="card" style={{ padding: '3rem', textAlign: 'center' }}>
+        <section className="card content-card empty-state">
           <h3>Loading appointments...</h3>
           <p>Please wait while we sync your booking history.</p>
-        </div>
+        </section>
       ) : appointments.length === 0 ? (
-        <div className="card" style={{ padding: '3rem', textAlign: 'center' }}>
+        <section className="card content-card empty-state">
           <h3>No appointments yet</h3>
-          <p>Book your first doctor&apos;s visit today.</p>
-          <button onClick={() => navigate('/doctors')} className="btn" style={{ marginTop: '1rem' }}>Book Now</button>
-        </div>
+          <p>Book your first doctor visit to start your care history.</p>
+          <button type="button" onClick={() => navigate('/doctors')} className="btn" style={{ marginTop: '1rem' }}>
+            Book a doctor
+          </button>
+        </section>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {appointments.map((appt) => (
-            <div key={appt.id} className="card" style={{ padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', textAlign: 'left' }}>
-              <div>
-                <h3 style={{ margin: 0, fontSize: '1.2rem' }}>{appt.doctorName}</h3>
-                <p style={{ margin: '0.2rem 0', color: 'var(--primary)', fontWeight: '500' }}>{appt.specialty}</p>
-                <small style={{ opacity: 0.7 }}>{appt.date} at {appt.time}</small>
-                <p style={{ margin: '0.4rem 0 0', opacity: 0.7, fontSize: '0.85rem' }}>{appt.location}</p>
-              </div>
+        <section className="history-list">
+          {appointments.map((appointment) => {
+            const isUpcoming = appointment.status === 'Upcoming';
 
-              <span style={{
-                padding: '0.4rem 1rem',
-                borderRadius: '99px',
-                fontSize: '0.9rem',
-                fontWeight: '600',
-                backgroundColor: appt.status === 'Upcoming' ? '#dcfce7' : '#f3f4f6',
-                color: appt.status === 'Upcoming' ? '#166534' : '#374151'
-              }}>
-                {appt.status}
-              </span>
-            </div>
-          ))}
-        </div>
+            return (
+              <article key={appointment.id} className="card history-item">
+                <div>
+                  <h3>{appointment.doctorName}</h3>
+                  <p style={{ marginTop: '0.3rem' }}>{appointment.specialty}</p>
+                  <p style={{ marginTop: '0.4rem' }}>
+                    {appointment.date} at {appointment.time}
+                  </p>
+                  <p style={{ marginTop: '0.25rem' }}>{appointment.location}</p>
+                </div>
+                <span className={`status-pill ${isUpcoming ? 'status-pill--upcoming' : 'status-pill--complete'}`}>
+                  {appointment.status}
+                </span>
+              </article>
+            );
+          })}
+        </section>
       )}
     </main>
   );

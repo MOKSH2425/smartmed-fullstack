@@ -16,81 +16,127 @@ const Signup = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (event) => {
+    setFormData((current) => ({ ...current, [event.target.name]: event.target.value }));
   };
 
-  const handleSignup = async (e) => {
-    e.preventDefault();
+  const handleSignup = async (event) => {
+    event.preventDefault();
 
     if (!formData.name || !formData.email || !formData.password) {
-      toast.error("Please fill in all fields.");
+      toast.error('Please fill in all fields.');
       return;
     }
 
     try {
       setLoading(true);
       await signup(formData);
-      toast.success("Account created successfully.");
+      toast.success('Account created successfully.');
       navigate('/dashboard', { replace: true });
     } catch (error) {
-      toast.error(getErrorMessage(error, "Signup failed."));
+      toast.error(getErrorMessage(error, 'Signup failed.'));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <main style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div className="card" style={{ width: '100%', maxWidth: '400px', padding: '2rem' }}>
-        <h2 style={{ textAlign: 'center', marginBottom: '2rem', color: 'var(--primary)' }}>Create Account</h2>
+    <main>
+      <section className="auth-shell">
+        <aside className="auth-panel__aside">
+          <span className="auth-panel__badge">New patient onboarding</span>
+          <h1 style={{ marginTop: '1rem', fontSize: 'clamp(2.2rem, 4vw, 3.4rem)' }}>
+            Create your health workspace in minutes.
+          </h1>
+          <p>
+            Register once to unlock appointment booking, symptom support, profile
+            management, reports, and your ongoing care history.
+          </p>
 
-        <form onSubmit={handleSignup} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Full Name</label>
-            <input
-              type="text"
-              name="name"
-              placeholder="John Doe"
-              value={formData.name}
-              onChange={handleChange}
-              style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-color)' }}
-            />
-          </div>
+          <ul className="auth-panel__list">
+            <li>
+              <span className="feature-card__icon">A</span>
+              <div>
+                <strong>Account-ready dashboard</strong>
+                <span>Your account opens directly into the product, not a dead-end success page.</span>
+              </div>
+            </li>
+            <li>
+              <span className="feature-card__icon">B</span>
+              <div>
+                <strong>Persistent records</strong>
+                <span>Bookings and profile changes are saved through the backend and database.</span>
+              </div>
+            </li>
+            <li>
+              <span className="feature-card__icon">C</span>
+              <div>
+                <strong>Patient-centered flow</strong>
+                <span>Everything stays connected from registration to follow-up care.</span>
+              </div>
+            </li>
+          </ul>
+        </aside>
 
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Email Address</label>
-            <input
-              type="email"
-              name="email"
-              placeholder="name@example.com"
-              value={formData.email}
-              onChange={handleChange}
-              style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-color)' }}
-            />
-          </div>
+        <section className="auth-panel__form">
+          <span className="auth-panel__badge" style={{ background: 'var(--bg-soft)', color: 'var(--primary)' }}>
+            Create account
+          </span>
+          <h2 style={{ marginTop: '1rem', fontSize: '2rem' }}>Join SmartMed</h2>
+          <p className="section-subtitle">
+            Fill in your details below and we&apos;ll create your account instantly.
+          </p>
 
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Password</label>
-            <input
-              type="password"
-              name="password"
-              placeholder="At least 8 characters"
-              value={formData.password}
-              onChange={handleChange}
-              style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-color)' }}
-            />
-          </div>
+          <form className="auth-form" onSubmit={handleSignup}>
+            <div>
+              <label htmlFor="signup-name">Full name</label>
+              <input
+                id="signup-name"
+                type="text"
+                name="name"
+                placeholder="John Doe"
+                value={formData.name}
+                onChange={handleChange}
+              />
+            </div>
 
-          <button type="submit" className="btn" style={{ width: '100%', marginTop: '1rem', opacity: loading ? 0.75 : 1 }} disabled={loading}>
-            {loading ? 'Creating Account...' : 'Sign Up'}
-          </button>
-        </form>
+            <div>
+              <label htmlFor="signup-email">Email address</label>
+              <input
+                id="signup-email"
+                type="email"
+                name="email"
+                placeholder="name@example.com"
+                value={formData.email}
+                onChange={handleChange}
+              />
+            </div>
 
-        <p style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.9rem' }}>
-          Already have an account? <Link to="/login" style={{ color: 'var(--primary)', fontWeight: '600', textDecoration: 'none' }}>Login</Link>
-        </p>
-      </div>
+            <div>
+              <label htmlFor="signup-password">Password</label>
+              <input
+                id="signup-password"
+                type="password"
+                name="password"
+                placeholder="At least 8 characters"
+                value={formData.password}
+                onChange={handleChange}
+              />
+            </div>
+
+            <button type="submit" className="btn" disabled={loading} style={{ opacity: loading ? 0.75 : 1 }}>
+              {loading ? 'Creating account...' : 'Create SmartMed account'}
+            </button>
+          </form>
+
+          <p className="auth-inline-note">
+            Already registered?{' '}
+            <Link to="/login" style={{ color: 'var(--primary)', fontWeight: 700, textDecoration: 'none' }}>
+              Sign in instead
+            </Link>
+          </p>
+        </section>
+      </section>
     </main>
   );
 };

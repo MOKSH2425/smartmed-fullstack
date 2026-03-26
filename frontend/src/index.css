@@ -1,103 +1,210 @@
 :root {
-  font-family: 'Poppins', sans-serif;
+  color-scheme: light;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
-  /* --- LIGHT MODE --- */
-  
-  /* 1. New Background: Not white! It is a soft, cool gray-blue. */
-  --bg-color: #eef2f6;       
-  
-  /* 2. Text is dark navy, softer than black */
-  --text-color: #334155;     
-  
-  /* 3. Cards stay white to POP against the gray background */
-  --card-bg: #ffffff;        
-  
-  /* 4. Primary Brand Colors */
-  --primary: #2563eb;        /* Vibrant Blue */
-  --accent: #06b6d4;         /* Cyan/Teal */
-  --border-color: #e2e8f0;
-  
-  /* 5. Softer Shadow for depth */
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --bg-canvas: #eef4f1;
+  --bg-elevated: rgba(255, 255, 255, 0.76);
+  --bg-panel: #ffffff;
+  --bg-soft: #f4f8f9;
+  --bg-strong: #07111a;
+  --surface-tint: rgba(80, 192, 168, 0.14);
+
+  --text-main: #10202b;
+  --text-muted: #5f7383;
+  --text-inverse: #f4fbf8;
+
+  --primary: #0f766e;
+  --primary-strong: #0d5d59;
+  --secondary: #1d4ed8;
+  --accent: #14b8a6;
+
+  --border-soft: rgba(157, 189, 197, 0.4);
+  --border-strong: rgba(89, 126, 136, 0.22);
+
+  --shadow-soft: 0 16px 35px rgba(60, 90, 108, 0.12);
+  --shadow-strong: 0 24px 55px rgba(17, 34, 47, 0.16);
+  --radius-card: 1.5rem;
 }
 
-/* --- DARK MODE --- */
 body.dark-mode {
-  --bg-color: #0f172a !important;   /* Deep Midnight Blue */
-  --text-color: #e2e8f0 !important; /* Soft White */
-  --card-bg: #1e293b !important;    /* Lighter Midnight Blue */
-  --primary: #3b82f6 !important;    /* Neon Blue */
-  --accent: #22d3ee !important;     /* Neon Cyan */
-  --border-color: #334155 !important;
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+  --bg-canvas: #07111a;
+  --bg-elevated: rgba(10, 21, 31, 0.76);
+  --bg-panel: #0d1b27;
+  --bg-soft: #112230;
+  --bg-strong: #03090f;
+  --surface-tint: rgba(70, 167, 170, 0.18);
+
+  --text-main: #edf8f5;
+  --text-muted: #98adbb;
+  --text-inverse: #f7fffd;
+
+  --primary: #4fd1c5;
+  --primary-strong: #7ee1d8;
+  --secondary: #7cb4ff;
+  --accent: #5eead4;
+
+  --border-soft: rgba(113, 143, 155, 0.28);
+  --border-strong: rgba(128, 162, 174, 0.18);
+
+  --shadow-soft: 0 18px 42px rgba(2, 8, 14, 0.34);
+  --shadow-strong: 0 26px 60px rgba(1, 6, 12, 0.48);
 }
 
-/* --- GLOBAL STYLES --- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
-  padding: 0;
   min-width: 320px;
   min-height: 100vh;
-  width: 100%;
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  transition: background-color 0.4s ease, color 0.4s ease;
+  background:
+    radial-gradient(circle at top left, rgba(19, 153, 132, 0.16), transparent 34%),
+    radial-gradient(circle at top right, rgba(30, 80, 216, 0.12), transparent 28%),
+    linear-gradient(180deg, #f5fbf8 0%, var(--bg-canvas) 44%, #edf2f7 100%);
+  color: var(--text-main);
+  transition: background-color 240ms ease, color 240ms ease;
+}
+
+body.dark-mode {
+  background:
+    radial-gradient(circle at top left, rgba(34, 197, 154, 0.16), transparent 26%),
+    radial-gradient(circle at top right, rgba(61, 140, 255, 0.18), transparent 20%),
+    linear-gradient(180deg, #08121b 0%, #07111a 56%, #03070c 100%);
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  color: inherit;
 }
 
 #root {
-  width: 100% !important;
-  max-width: 100% !important;
-  margin: 0 !important;
-  padding: 0 !important;
+  width: 100%;
+  min-height: 100vh;
 }
 
-/* --- CARD STYLING --- */
-.card {
-  background-color: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  box-shadow: var(--shadow);
-  transition: transform 0.2s, box-shadow 0.2s;
+main {
+  width: min(1180px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2.2rem 0 2.8rem;
 }
 
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  border-color: var(--primary);
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  color: var(--text-main);
+  font-family: 'Space Grotesk', sans-serif;
+  line-height: 1.1;
 }
 
-/* --- BUTTON STYLING --- */
+p {
+  color: var(--text-muted);
+}
+
 .btn {
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  color: white;
-  border: none;
-  border-radius: 99px;
-  padding: 0.75rem 1.5rem;
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 0.92rem 1.4rem;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #f8fffd;
+  font-weight: 700;
+  letter-spacing: 0.01em;
   cursor: pointer;
-  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
-  transition: opacity 0.2s;
+  text-decoration: none;
+  box-shadow: 0 16px 34px rgba(18, 73, 97, 0.2);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    opacity 180ms ease;
 }
 
-.btn:hover {
-  opacity: 0.9;
-  transform: scale(1.02);
+.btn:hover,
+.btn:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 42px rgba(18, 73, 97, 0.26);
 }
 
-/* --- DARK MODE FORCED OVERRIDES --- */
-body.dark-mode .card,
-body.dark-mode main {
-  background-color: var(--card-bg) !important;
-  color: var(--text-color) !important;
-  border-color: var(--border-color) !important;
+.card {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(248, 252, 252, 0.92)),
+    var(--bg-panel);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+  backdrop-filter: blur(14px);
+}
+
+body.dark-mode .card {
+  background:
+    linear-gradient(180deg, rgba(13, 27, 39, 0.96), rgba(10, 20, 30, 0.96)),
+    var(--bg-panel);
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid var(--border-soft);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.74);
+  color: var(--text-main);
+  padding: 0.9rem 1rem;
+  outline: none;
+  transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
 }
 
 body.dark-mode input,
 body.dark-mode select,
 body.dark-mode textarea {
-  background-color: #334155 !important;
-  color: white !important;
-  border: 1px solid #475569 !important;
+  background: rgba(17, 34, 48, 0.9);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: rgba(29, 78, 216, 0.44);
+  box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.12);
+}
+
+::placeholder {
+  color: #8aa0ad;
+}
+
+@media (max-width: 768px) {
+  main {
+    width: min(100% - 1rem, 100%);
+    padding: 1.4rem 0 2rem;
+  }
+
+  .btn {
+    width: 100%;
+  }
 }

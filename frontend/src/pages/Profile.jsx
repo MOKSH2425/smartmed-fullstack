@@ -11,7 +11,7 @@ const emptyProfile = {
   age: '',
   gender: 'Prefer not to say',
   bloodGroup: '',
-  address: ''
+  address: '',
 };
 
 const Profile = () => {
@@ -30,7 +30,7 @@ const Profile = () => {
       const data = await api.getProfile();
       setProfile(data.profile);
     } catch (error) {
-      const message = getErrorMessage(error, "Failed to load profile.");
+      const message = getErrorMessage(error, 'Failed to load profile.');
       setLoadError(message);
       toast.error(message);
     } finally {
@@ -42,13 +42,13 @@ const Profile = () => {
     loadProfile();
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleChange = (event) => {
+    const { name, value } = event.target;
     setProfile((current) => ({ ...current, [name]: value }));
   };
 
-  const handleSave = async (e) => {
-    e.preventDefault();
+  const handleSave = async (event) => {
+    event.preventDefault();
 
     try {
       setSaving(true);
@@ -56,145 +56,166 @@ const Profile = () => {
       setProfile(data.profile);
       setUser(data.profile);
       setIsEditing(false);
-      toast.success("Profile updated successfully.");
+      toast.success('Profile updated successfully.');
     } catch (error) {
-      toast.error(getErrorMessage(error, "Failed to update profile."));
+      toast.error(getErrorMessage(error, 'Failed to update profile.'));
     } finally {
       setSaving(false);
     }
   };
 
-  const inputStyle = {
-    background: isEditing ? '#ffffff' : 'transparent',
-    color: isEditing ? '#000000' : 'inherit',
-    border: isEditing ? '1px solid #d1d5db' : '1px solid transparent',
-    borderRadius: '8px',
-    padding: '0.75rem',
-    width: '100%',
-    cursor: isEditing ? 'text' : 'default',
-    fontWeight: '500'
-  };
-
   if (loading) {
     return (
-      <main style={{ padding: '2rem', maxWidth: '800px', margin: 'auto' }}>
-        <div className="card" style={{ padding: '2rem' }}>
+      <main className="content-shell">
+        <section className="card content-card">
           <p>Loading profile...</p>
-        </div>
+        </section>
       </main>
     );
   }
 
   if (loadError) {
     return (
-      <main style={{ padding: '2rem', maxWidth: '800px', margin: 'auto' }}>
-        <div className="card" style={{ padding: '2rem', textAlign: 'center' }}>
-          <h3 style={{ marginTop: 0 }}>We couldn&apos;t load your profile right now.</h3>
-          <p style={{ opacity: 0.8 }}>{loadError}</p>
-          <button className="btn" onClick={loadProfile} style={{ marginTop: '1rem' }}>
+      <main className="content-shell">
+        <section className="card content-card empty-state">
+          <h3>We couldn&apos;t load your profile right now.</h3>
+          <p>{loadError}</p>
+          <button type="button" className="btn" onClick={loadProfile} style={{ marginTop: '1rem' }}>
             Retry
           </button>
-        </div>
+        </section>
       </main>
     );
   }
 
   return (
-    <main style={{ padding: '2rem', maxWidth: '800px', margin: 'auto' }}>
-      <button
-        onClick={() => navigate(-1)}
-        className="btn"
-        style={{
-          background: 'transparent',
-          color: 'var(--text-color)',
-          padding: '0.5rem 0',
-          marginBottom: '1rem',
-          boxShadow: 'none',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          width: 'fit-content'
-        }}
-      >
-        Back
+    <main className="content-shell">
+      <button type="button" onClick={() => navigate(-1)} className="btn" style={{ width: 'fit-content' }}>
+        Back to previous page
       </button>
 
-      <div className="card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-          <h2>My Profile</h2>
+      <section className="dashboard-hero">
+        <div className="dashboard-hero__row">
+          <div>
+            <p className="section-subtitle" style={{ textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 800 }}>
+              Account details
+            </p>
+            <h1 className="section-title" style={{ marginTop: '0.35rem' }}>
+              My profile
+            </h1>
+            <p>
+              Keep your personal details accurate so booking, reports, and follow-up
+              care stay smooth.
+            </p>
+          </div>
+
           <button
+            type="button"
             className="btn"
-            style={{ background: isEditing ? '#dc2626' : '#2563eb' }}
-            onClick={() => setIsEditing((value) => !value)}
+            onClick={() => setIsEditing((current) => !current)}
+            style={{
+              background: isEditing
+                ? 'linear-gradient(135deg, #dc2626, #fb7185)'
+                : 'linear-gradient(135deg, var(--primary), var(--secondary))',
+            }}
           >
-            {isEditing ? "Cancel Edit" : "Edit Profile"}
+            {isEditing ? 'Cancel editing' : 'Edit profile'}
           </button>
         </div>
+      </section>
 
-        <form onSubmit={handleSave}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
-            <div>
-              <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>Full Name</label>
-              <input type="text" name="name" value={user.name} onChange={handleChange} disabled={!isEditing} style={inputStyle} />
-            </div>
+      <section className="card content-card">
+        <form onSubmit={handleSave} className="info-list">
+          <div className="info-field">
+            <label htmlFor="profile-name">Full name</label>
+            <input
+              id="profile-name"
+              type="text"
+              name="name"
+              value={user.name}
+              onChange={handleChange}
+              disabled={!isEditing}
+            />
+          </div>
 
-            <div>
-              <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>Email</label>
-              <input
-                type="email"
-                name="email"
-                value={user.email}
-                disabled
-                style={{
-                  ...inputStyle,
-                  background: isEditing ? '#e5e7eb' : 'transparent',
-                  color: isEditing ? '#6b7280' : 'inherit',
-                  cursor: 'not-allowed'
-                }}
-              />
-            </div>
+          <div className="info-field">
+            <label htmlFor="profile-email">Email</label>
+            <input id="profile-email" type="email" name="email" value={user.email} disabled />
+          </div>
 
-            <div>
-              <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>Phone Number</label>
-              <input type="tel" name="phone" value={user.phone || ''} onChange={handleChange} disabled={!isEditing} style={inputStyle} />
-            </div>
+          <div className="info-field">
+            <label htmlFor="profile-phone">Phone number</label>
+            <input
+              id="profile-phone"
+              type="tel"
+              name="phone"
+              value={user.phone || ''}
+              onChange={handleChange}
+              disabled={!isEditing}
+            />
+          </div>
 
-            <div>
-              <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>Address</label>
-              <input type="text" name="address" value={user.address || ''} onChange={handleChange} disabled={!isEditing} style={inputStyle} />
-            </div>
+          <div className="info-field">
+            <label htmlFor="profile-blood-group">Blood group</label>
+            <input
+              id="profile-blood-group"
+              type="text"
+              name="bloodGroup"
+              value={user.bloodGroup || ''}
+              onChange={handleChange}
+              disabled={!isEditing}
+            />
+          </div>
 
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>Age</label>
-                <input type="number" name="age" value={user.age ?? ''} onChange={handleChange} disabled={!isEditing} style={inputStyle} />
-              </div>
-              <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>Gender</label>
-                <select name="gender" value={user.gender || 'Prefer not to say'} onChange={handleChange} disabled={!isEditing} style={inputStyle}>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                  <option value="Prefer not to say">Prefer not to say</option>
-                </select>
-              </div>
-            </div>
+          <div className="info-field">
+            <label htmlFor="profile-age">Age</label>
+            <input
+              id="profile-age"
+              type="number"
+              name="age"
+              value={user.age ?? ''}
+              onChange={handleChange}
+              disabled={!isEditing}
+            />
+          </div>
 
-            <div>
-              <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>Blood Group</label>
-              <input type="text" name="bloodGroup" value={user.bloodGroup || ''} onChange={handleChange} disabled={!isEditing} style={inputStyle} />
-            </div>
+          <div className="info-field">
+            <label htmlFor="profile-gender">Gender</label>
+            <select
+              id="profile-gender"
+              name="gender"
+              value={user.gender || 'Prefer not to say'}
+              onChange={handleChange}
+              disabled={!isEditing}
+            >
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+              <option value="Prefer not to say">Prefer not to say</option>
+            </select>
+          </div>
+
+          <div className="info-field info-field--wide">
+            <label htmlFor="profile-address">Address</label>
+            <input
+              id="profile-address"
+              type="text"
+              name="address"
+              value={user.address || ''}
+              onChange={handleChange}
+              disabled={!isEditing}
+            />
           </div>
 
           {isEditing && (
-            <div style={{ marginTop: '2rem', textAlign: 'right' }}>
-              <button type="submit" className="btn" style={{ padding: '0.75rem 3rem', opacity: saving ? 0.75 : 1 }} disabled={saving}>
-                {saving ? 'Saving...' : 'Save Changes'}
+            <div className="info-field info-field--wide" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button type="submit" className="btn" disabled={saving} style={{ opacity: saving ? 0.75 : 1 }}>
+                {saving ? 'Saving...' : 'Save changes'}
               </button>
             </div>
           )}
         </form>
-      </div>
+      </section>
     </main>
   );
 };

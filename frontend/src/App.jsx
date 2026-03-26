@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import './App.css';
 
 // Layouts
 import Header from './components/Header';
@@ -26,55 +27,54 @@ import ProtectedRoute from './components/ProtectedRoute';
 function App() {
   return (
     <Router>
-      <Header />
-      <Routes>
-        
-        {/* PUBLIC ROUTES (Anyone can see these) */}
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        {/* If you had a dedicated /login or /signup page, they would go here too */}
+      <div className="app-shell">
+        <Header />
+        <div className="app-content">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
 
-        {/* PRIVATE ROUTES (Protected by the Guard) */}
-        <Route path="/dashboard" element={
-          <ProtectedRoute> <Dashboard /> </ProtectedRoute>
-        } />
-        
-        <Route path="/doctors" element={
-          <ProtectedRoute> <Doctors /> </ProtectedRoute>
-        } />
-        
-        <Route path="/history" element={
-          <ProtectedRoute> <AppointmentHistory /> </ProtectedRoute>
-        } />
+            <Route path="/dashboard" element={
+              <ProtectedRoute><Dashboard /></ProtectedRoute>
+            } />
 
-        <Route path="/previous" element={
-          <ProtectedRoute> <PreviousDoctors /> </ProtectedRoute>
-        } />
-        
-        <Route path="/report" element={
-          <ProtectedRoute> <MedicalReports /> </ProtectedRoute>
-        } />
+            <Route path="/doctors" element={
+              <ProtectedRoute><Doctors /></ProtectedRoute>
+            } />
 
-        <Route path="/symptom" element={
-          <ProtectedRoute> <SymptomChecker /> </ProtectedRoute>
-        } />
+            <Route path="/history" element={
+              <ProtectedRoute><AppointmentHistory /></ProtectedRoute>
+            } />
 
-        <Route path="/profile" element={
-          <ProtectedRoute> <Profile /> </ProtectedRoute>
-        } />
+            <Route path="/previous" element={
+              <ProtectedRoute><PreviousDoctors /></ProtectedRoute>
+            } />
 
-        <Route path="/settings" element={
-          <ProtectedRoute> <Settings /> </ProtectedRoute>
-        } />
+            <Route path="/report" element={
+              <ProtectedRoute><MedicalReports /></ProtectedRoute>
+            } />
 
-        <Route path="/chat" element={
-          <ProtectedRoute> <Chat /> </ProtectedRoute>
-        } />
+            <Route path="/symptom" element={
+              <ProtectedRoute><SymptomChecker /></ProtectedRoute>
+            } />
 
-      </Routes>
-      <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
-      <Footer />
+            <Route path="/profile" element={
+              <ProtectedRoute><Profile /></ProtectedRoute>
+            } />
+
+            <Route path="/settings" element={
+              <ProtectedRoute><Settings /></ProtectedRoute>
+            } />
+
+            <Route path="/chat" element={
+              <ProtectedRoute><Chat /></ProtectedRoute>
+            } />
+          </Routes>
+        </div>
+        <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
+        <Footer />
+      </div>
     </Router>
   );
 }

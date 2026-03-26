@@ -17,74 +17,120 @@ const Login = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (event) => {
+    setFormData((current) => ({ ...current, [event.target.name]: event.target.value }));
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  const handleLogin = async (event) => {
+    event.preventDefault();
 
     if (!formData.email || !formData.password) {
-      toast.error("Please fill in all fields.");
+      toast.error('Please fill in all fields.');
       return;
     }
 
     try {
       setLoading(true);
       await login(formData);
-      toast.success("Login successful. Welcome back.");
+      toast.success('Login successful. Welcome back.');
       const nextPath = location.state?.from?.pathname || '/dashboard';
       navigate(nextPath, { replace: true });
     } catch (error) {
-      toast.error(getErrorMessage(error, "Login failed."));
+      toast.error(getErrorMessage(error, 'Login failed.'));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <main style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div className="card" style={{ width: '100%', maxWidth: '400px', padding: '2rem' }}>
-        <h2 style={{ textAlign: 'center', marginBottom: '2rem', color: 'var(--primary)' }}>Welcome Back</h2>
+    <main>
+      <section className="auth-shell">
+        <aside className="auth-panel__aside">
+          <span className="auth-panel__badge">Existing patient access</span>
+          <h1 style={{ marginTop: '1rem', fontSize: 'clamp(2.2rem, 4vw, 3.4rem)' }}>
+            Welcome back to your care dashboard.
+          </h1>
+          <p>
+            Sign in to manage appointments, review reports, talk to the AI assistant,
+            and keep your medical details up to date.
+          </p>
 
-        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Email Address</label>
-            <input
-              type="email"
-              name="email"
-              placeholder="name@example.com"
-              value={formData.email}
-              onChange={handleChange}
-              style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-color)' }}
-            />
+          <ul className="auth-panel__list">
+            <li>
+              <span className="feature-card__icon">01</span>
+              <div>
+                <strong>Secure account recovery</strong>
+                <span>Your session restores cleanly when you refresh and come back.</span>
+              </div>
+            </li>
+            <li>
+              <span className="feature-card__icon">02</span>
+              <div>
+                <strong>Unified patient timeline</strong>
+                <span>Appointments, previous doctors, and reports stay in one place.</span>
+              </div>
+            </li>
+            <li>
+              <span className="feature-card__icon">03</span>
+              <div>
+                <strong>Fast next actions</strong>
+                <span>Move straight from the dashboard into booking or symptom support.</span>
+              </div>
+            </li>
+          </ul>
+        </aside>
+
+        <section className="auth-panel__form">
+          <span className="auth-panel__badge" style={{ background: 'var(--bg-soft)', color: 'var(--primary)' }}>
+            Sign in
+          </span>
+          <h2 style={{ marginTop: '1rem', fontSize: '2rem' }}>Access SmartMed</h2>
+          <p className="section-subtitle">
+            Use your email and password to continue into your dashboard.
+          </p>
+
+          <form className="auth-form" onSubmit={handleLogin}>
+            <div>
+              <label htmlFor="login-email">Email address</label>
+              <input
+                id="login-email"
+                type="email"
+                name="email"
+                placeholder="name@example.com"
+                value={formData.email}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="login-password">Password</label>
+              <input
+                id="login-password"
+                type="password"
+                name="password"
+                placeholder="Enter your password"
+                value={formData.password}
+                onChange={handleChange}
+              />
+            </div>
+
+            <button type="submit" className="btn" disabled={loading} style={{ opacity: loading ? 0.75 : 1 }}>
+              {loading ? 'Signing in...' : 'Sign in to SmartMed'}
+            </button>
+          </form>
+
+          <div className="demo-strip">
+            Demo access: <strong>demo@smartmed.app</strong> / <strong>Demo@12345</strong>
           </div>
 
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Password</label>
-            <input
-              type="password"
-              name="password"
-              placeholder="Enter your password"
-              value={formData.password}
-              onChange={handleChange}
-              style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-color)' }}
-            />
-          </div>
-
-          <button type="submit" className="btn" style={{ width: '100%', marginTop: '1rem', opacity: loading ? 0.75 : 1 }} disabled={loading}>
-            {loading ? 'Signing In...' : 'Sign In'}
-          </button>
-        </form>
-
-        <p style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.9rem' }}>
-          Don&apos;t have an account? <Link to="/signup" style={{ color: 'var(--primary)', fontWeight: '600', textDecoration: 'none' }}>Sign up</Link>
-        </p>
-
-        <p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.85rem', opacity: 0.75 }}>
-          Demo login: `demo@smartmed.app` / `Demo@12345`
-        </p>
-      </div>
+          <p className="auth-inline-note">
+            Don&apos;t have an account yet?{' '}
+            <Link to="/signup" style={{ color: 'var(--primary)', fontWeight: 700, textDecoration: 'none' }}>
+              Create one here
+            </Link>
+          </p>
+        </section>
+      </section>
     </main>
   );
 };

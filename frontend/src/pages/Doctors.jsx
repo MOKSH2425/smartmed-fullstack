@@ -25,7 +25,7 @@ const Doctors = () => {
         });
         setDoctors(data.doctors);
       } catch (error) {
-        toast.error(getErrorMessage(error, "Failed to load doctors."));
+        toast.error(getErrorMessage(error, 'Failed to load doctors.'));
       } finally {
         setLoading(false);
       }
@@ -34,8 +34,8 @@ const Doctors = () => {
     fetchDoctors();
   }, [selectedLocation, selectedSpecialty]);
 
-  const locations = ['All', ...new Set(doctors.map((doc) => doc.location))];
-  const specialties = ['All', ...new Set(doctors.map((doc) => doc.specialty))];
+  const locations = ['All', ...new Set(doctors.map((doctor) => doctor.location))];
+  const specialties = ['All', ...new Set(doctors.map((doctor) => doctor.specialty))];
 
   const openBookingModal = (doctor) => {
     setSelectedDoctor(doctor);
@@ -46,7 +46,7 @@ const Doctors = () => {
 
   const handleConfirmBooking = async () => {
     if (!selectedDate || !selectedTime || !selectedDoctor) {
-      toast.error("Please select a date and time.");
+      toast.error('Please select a date and time.');
       return;
     }
 
@@ -61,125 +61,169 @@ const Doctors = () => {
       setShowModal(false);
       navigate('/history');
     } catch (error) {
-      toast.error(getErrorMessage(error, "Booking failed."));
+      toast.error(getErrorMessage(error, 'Booking failed.'));
     } finally {
       setBooking(false);
     }
   };
 
   return (
-    <main style={{ padding: '2rem', position: 'relative', maxWidth: '1200px', margin: 'auto' }}>
-      <div style={{ marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <button onClick={() => navigate(-1)} className="btn" style={{ width: 'fit-content', background: 'transparent', color: 'var(--text-color)', border: '1px solid var(--border-color)' }}>Back</button>
+    <main className="doctors-page">
+      <button
+        type="button"
+        onClick={() => navigate(-1)}
+        className="btn"
+        style={{ width: 'fit-content' }}
+      >
+        Back to previous page
+      </button>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-          <div>
-            <h2 style={{ color: 'var(--primary)', margin: 0 }}>Find a Specialist</h2>
-            <p style={{ margin: 0, opacity: 0.7 }}>
-              {loading ? "Connecting to server..." : "Book appointments with top doctors near you."}
-            </p>
+      <section className="section-head">
+        <div>
+          <p className="section-subtitle" style={{ textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 800 }}>
+            Specialist network
+          </p>
+          <h1 className="section-title" style={{ marginTop: '0.4rem' }}>
+            Book the right doctor with less friction.
+          </h1>
+          <p style={{ maxWidth: '42rem' }}>
+            Filter by specialty or location, review each doctor&apos;s profile, and
+            confirm a visit from the same screen.
+          </p>
+        </div>
+
+        <div className="filter-bar">
+          <div className="filter-chip">
+            <label htmlFor="specialty-filter">Specialty</label>
+            <select
+              id="specialty-filter"
+              value={selectedSpecialty}
+              onChange={(event) => setSelectedSpecialty(event.target.value)}
+            >
+              {specialties.map((specialty) => (
+                <option key={specialty} value={specialty}>
+                  {specialty === 'All' ? 'All specialists' : specialty}
+                </option>
+              ))}
+            </select>
           </div>
 
-          {!loading && (
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--bg-color)', padding: '0.5rem 1rem', borderRadius: '12px', border: '1px solid var(--primary)' }}>
-                <span>Specialty</span>
-                <select
-                  value={selectedSpecialty}
-                  onChange={(e) => setSelectedSpecialty(e.target.value)}
-                  style={{ border: 'none', background: 'transparent', color: 'var(--text-color)', fontSize: '0.9rem', fontWeight: 'bold', cursor: 'pointer', outline: 'none' }}
-                >
-                  {specialties.map((spec) => (
-                    <option key={spec} value={spec} style={{ background: 'var(--bg-color)' }}>{spec === 'All' ? 'All Specialists' : spec}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--bg-color)', padding: '0.5rem 1rem', borderRadius: '12px', border: '1px solid var(--primary)' }}>
-                <span>Location</span>
-                <select
-                  value={selectedLocation}
-                  onChange={(e) => setSelectedLocation(e.target.value)}
-                  style={{ border: 'none', background: 'transparent', color: 'var(--text-color)', fontSize: '0.9rem', fontWeight: 'bold', cursor: 'pointer', outline: 'none' }}
-                >
-                  {locations.map((loc) => (
-                    <option key={loc} value={loc} style={{ background: 'var(--bg-color)' }}>{loc === 'All' ? 'All Locations' : loc}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          )}
+          <div className="filter-chip">
+            <label htmlFor="location-filter">Location</label>
+            <select
+              id="location-filter"
+              value={selectedLocation}
+              onChange={(event) => setSelectedLocation(event.target.value)}
+            >
+              {locations.map((location) => (
+                <option key={location} value={location}>
+                  {location === 'All' ? 'All locations' : location}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-      </div>
+      </section>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '4rem' }}>
+        <section className="card empty-state">
           <h3>Loading doctors...</h3>
-          <p>Fetching live data from your backend.</p>
-        </div>
+          <p>Fetching specialist data from your backend.</p>
+        </section>
       ) : doctors.length > 0 ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
-          {doctors.map((doc) => (
-            <div key={doc.id} className="card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '0.8rem', position: 'relative', overflow: 'hidden', textAlign: 'left' }}>
-              <div style={{ position: 'absolute', top: '1rem', right: '1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem', alignItems: 'flex-end' }}>
-                <span style={{ background: 'rgba(34, 211, 238, 0.1)', color: 'var(--primary)', padding: '0.2rem 0.6rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 'bold' }}>
-                  {doc.location}
-                </span>
+        <section className="doctor-grid">
+          {doctors.map((doctor) => (
+            <article key={doctor.id} className="card doctor-card">
+              <div className="doctor-card__top">
+                <div>
+                  <p className="section-subtitle" style={{ marginTop: 0 }}>
+                    {doctor.specialty}
+                  </p>
+                  <h3 style={{ marginTop: '0.25rem' }}>{doctor.name}</h3>
+                </div>
+                <span className="doctor-chip">{doctor.location}</span>
               </div>
 
-              <h3 style={{ margin: 0 }}>{doc.name}</h3>
-              <p style={{ margin: 0, color: 'var(--primary)', fontWeight: '600' }}>
-                {doc.specialty}
-              </p>
-
-              <div style={{ display: 'flex', gap: '1rem', fontSize: '0.9rem', opacity: 0.7 }}>
-                <span>{doc.exp} Exp</span>
-                <span>{doc.rating} Rating</span>
+              <div className="doctor-card__meta">
+                <span className="doctor-chip">{doctor.exp} experience</span>
+                <span className="doctor-chip">{doctor.rating} rating</span>
+                <span className="doctor-chip">{doctor.clinic}</span>
               </div>
 
-              <p style={{ margin: 0, opacity: 0.75, fontSize: '0.92rem' }}>{doc.clinic}</p>
-              <p style={{ margin: 0, opacity: 0.7, fontSize: '0.9rem' }}>{doc.about}</p>
+              <p>{doctor.about}</p>
 
-              <button onClick={() => openBookingModal(doc)} className="btn" style={{ marginTop: '1rem' }}>Book Visit</button>
-            </div>
+              <button type="button" className="btn doctor-card__cta" onClick={() => openBookingModal(doctor)}>
+                Book appointment
+              </button>
+            </article>
           ))}
-        </div>
+        </section>
       ) : (
-        <div style={{ textAlign: 'center', padding: '4rem', opacity: 0.6 }}>
-          <h3>No matches found</h3>
-          <p>Try changing your filters.</p>
-        </div>
+        <section className="card empty-state">
+          <h3>No doctors match these filters</h3>
+          <p>Try changing the specialty or location to broaden the search.</p>
+        </section>
       )}
 
       {showModal && selectedDoctor && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-          backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 2000, padding: '1rem'
-        }}>
-          <div className="card" style={{ width: '100%', maxWidth: '400px', padding: '2rem' }}>
-            <h3 style={{ marginTop: 0, color: 'var(--primary)' }}>Book Appointment</h3>
-            <p style={{ marginBottom: '0.5rem' }}>with <strong>{selectedDoctor.name}</strong></p>
-            <p style={{ marginBottom: '1.5rem', fontSize: '0.9rem', opacity: 0.8 }}>{selectedDoctor.specialty} <br /> {selectedDoctor.location}</p>
+        <div className="booking-overlay">
+          <div className="card booking-modal">
+            <p className="section-subtitle" style={{ textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 800 }}>
+              Confirm visit
+            </p>
+            <h3 style={{ marginTop: '0.5rem' }}>{selectedDoctor.name}</h3>
+            <p style={{ marginTop: '0.4rem' }}>
+              {selectedDoctor.specialty} at {selectedDoctor.clinic}, {selectedDoctor.location}
+            </p>
 
-            <div style={{ marginBottom: '1.5rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Select Date</label>
-              <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-color)' }} />
+            <div style={{ marginTop: '1.4rem' }}>
+              <label htmlFor="appointment-date" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 700 }}>
+                Appointment date
+              </label>
+              <input
+                id="appointment-date"
+                type="date"
+                value={selectedDate}
+                onChange={(event) => setSelectedDate(event.target.value)}
+              />
             </div>
 
-            <div style={{ marginBottom: '2rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Select Time Slot</label>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <div style={{ marginTop: '1.25rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.6rem', fontWeight: 700 }}>
+                Available slots
+              </label>
+              <div className="booking-slots">
                 {selectedDoctor.availableSlots.map((time) => (
-                  <button key={time} onClick={() => setSelectedTime(time)} style={{ padding: '0.5rem 0.8rem', borderRadius: '8px', border: '1px solid var(--primary)', background: selectedTime === time ? 'var(--primary)' : 'transparent', color: selectedTime === time ? 'white' : 'var(--primary)', cursor: 'pointer', transition: '0.2s', fontSize: '0.85rem' }}>{time}</button>
+                  <button
+                    key={time}
+                    type="button"
+                    className={`booking-slot${selectedTime === time ? ' booking-slot--selected' : ''}`}
+                    onClick={() => setSelectedTime(time)}
+                  >
+                    {time}
+                  </button>
                 ))}
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <button onClick={() => setShowModal(false)} style={{ flex: 1, padding: '0.8rem', borderRadius: '99px', border: '1px solid var(--border-color)', background: 'transparent', color: 'var(--text-color)', cursor: 'pointer' }}>Cancel</button>
-              <button onClick={handleConfirmBooking} className="btn" style={{ flex: 1, opacity: booking ? 0.75 : 1 }} disabled={booking}>{booking ? 'Booking...' : 'Confirm'}</button>
+            <div style={{ display: 'flex', gap: '0.9rem', marginTop: '1.6rem', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={() => setShowModal(false)}
+                className="hero-panel__secondary"
+                style={{ color: 'var(--text-main)', borderColor: 'var(--border-soft)', background: 'transparent' }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn"
+                onClick={handleConfirmBooking}
+                disabled={booking}
+                style={{ opacity: booking ? 0.75 : 1 }}
+              >
+                {booking ? 'Booking...' : 'Confirm booking'}
+              </button>
             </div>
           </div>
         </div>

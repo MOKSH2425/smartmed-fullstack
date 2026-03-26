@@ -1,52 +1,89 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/useAuth';
+
+const dashboardItems = [
+  {
+    to: '/symptom',
+    kicker: 'AI support',
+    title: 'Symptom checker',
+    description: 'Describe what you are feeling and get quick recommendations with next-step guidance.',
+  },
+  {
+    to: '/doctors',
+    kicker: 'Appointments',
+    title: 'Find doctors',
+    description: 'Browse specialists, compare locations, and move straight into booking.',
+  },
+  {
+    to: '/history',
+    kicker: 'Past care',
+    title: 'Appointment history',
+    description: 'Review the visits you have already booked and keep your care journey visible.',
+  },
+  {
+    to: '/previous',
+    kicker: 'Continuity',
+    title: 'Previous doctors',
+    description: 'See the doctors you have already consulted so follow-up care feels easier.',
+  },
+  {
+    to: '/report',
+    kicker: 'Records',
+    title: 'Medical reports',
+    description: 'Open and download stored reports whenever you need them.',
+  },
+  {
+    to: '/chat',
+    kicker: 'Conversation',
+    title: 'AI health chat',
+    description: 'Ask quick questions and get guided responses inside your care workspace.',
+  },
+];
 
 const Dashboard = () => {
+  const { user } = useAuth();
+  const firstName = user?.name?.trim()?.split(' ')[0] || 'there';
+
   return (
-    <main style={{ padding: '2rem', width: '95%', margin: '0 auto', minHeight: '80vh' }}>
-      
-      <h2 style={{ textAlign: 'center', marginBottom: '2rem', fontSize: '2rem' }}>
-        Welcome to SMARTMED
-      </h2>
+    <main>
+      <section className="dashboard-hero">
+        <div className="dashboard-hero__row">
+          <div>
+            <p className="section-subtitle" style={{ textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 800 }}>
+              Patient dashboard
+            </p>
+            <h1 className="section-title" style={{ marginTop: '0.4rem' }}>
+              Welcome back, {firstName}.
+            </h1>
+            <p style={{ maxWidth: '42rem' }}>
+              Everything important is one step away, from symptom triage and doctor
+              discovery to history, reports, and profile updates.
+            </p>
+          </div>
 
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
-        gap: '2rem',
-        width: '100%'
-      }}>
-        
-        <Link to="/symptom" className="card" style={{ textDecoration: 'none', color: 'inherit', padding: '2rem' }}>
-          <h3>🩺 Symptom Checker</h3>
-          <p>Check your symptoms and get medicine recommendations.</p>
-        </Link>
+          <div className="dashboard-badge">
+            Full-stack mode active
+          </div>
+        </div>
 
-        <Link to="/doctors" className="card" style={{ textDecoration: 'none', color: 'inherit', padding: '2rem' }}>
-          <h3>👨‍⚕️ Find Doctors</h3>
-          <p>Browse doctors and book an appointment easily.</p>
-        </Link>
+        <div className="dashboard-badges">
+          <div className="dashboard-badge">MongoDB-backed records</div>
+          <div className="dashboard-badge">Protected patient routes</div>
+          <div className="dashboard-badge">Live booking workflow</div>
+        </div>
+      </section>
 
-        <Link to="/history" className="card" style={{ textDecoration: 'none', color: 'inherit', padding: '2rem' }}>
-          <h3>📜 Appointment History</h3>
-          <p>View your past appointments in detail.</p>
-        </Link>
-
-        <Link to="/previous" className="card" style={{ textDecoration: 'none', color: 'inherit', padding: '2rem' }}>
-          <h3>👩‍⚕️ Previous Doctors</h3>
-          <p>See the doctors you’ve previously consulted.</p>
-        </Link>
-
-        <Link to="/report" className="card" style={{ textDecoration: 'none', color: 'inherit', padding: '2rem' }}>
-          <h3>📄 Medical Report</h3>
-          <p>Access your medical report for reference.</p>
-        </Link>
-
-        <Link to="/chat" className="card" style={{ textDecoration: 'none', color: 'inherit', padding: '2rem', border: '2px solid #2563eb' }}>
-          <h3>💬 AI Health Chat</h3>
-          <p>Chat instantly with our AI assistant for quick advice.</p>
-        </Link>
-
-      </div>
+      <section className="dashboard-grid">
+        {dashboardItems.map((item) => (
+          <Link key={item.to} to={item.to} className="card dashboard-card">
+            <span className="dashboard-card__kicker">{item.kicker}</span>
+            <h3>{item.title}</h3>
+            <p>{item.description}</p>
+            <span className="dashboard-card__arrow">Open module</span>
+          </Link>
+        ))}
+      </section>
     </main>
   );
 };

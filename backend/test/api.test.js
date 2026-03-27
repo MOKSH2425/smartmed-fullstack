@@ -98,12 +98,49 @@ const run = async () => {
 
     const symptomResponse = await request(app).get(
       "/api/symptoms/recommendation?symptom=fever"
-    );
+    ).set("Authorization", `Bearer ${authToken}`);
 
     assert.equal(symptomResponse.statusCode, 200);
     assert.equal(symptomResponse.body.found, true);
     assert.match(symptomResponse.body.medicine, /Paracetamol/i);
     logStep("symptom recommendation works");
+
+    const multiSymptomResponse = await request(app).get(
+      "/api/symptoms/recommendation?symptom=fever cough body ache"
+    ).set("Authorization", `Bearer ${authToken}`);
+
+    assert.equal(multiSymptomResponse.statusCode, 200);
+    assert.equal(multiSymptomResponse.body.found, true);
+    assert.equal(multiSymptomResponse.body.mode, "condition_match");
+    assert.match(multiSymptomResponse.body.symptom, /flu|viral/i);
+    logStep("multi-symptom scoring works");
+
+    const fallbackResponse = await request(app).get(
+      "/api/symptoms/recommendation?symptom=my skin is itchy and red"
+    ).set("Authorization", `Bearer ${authToken}`);
+
+    assert.equal(fallbackResponse.statusCode, 200);
+    assert.equal(fallbackResponse.body.found, true);
+    assert.ok(["condition_match", "fallback"].includes(fallbackResponse.body.mode));
+    logStep("fallback symptom guidance works");
+
+    const emergencyResponse = await request(app).get(
+      "/api/symptoms/recommendation?symptom=chest pain and shortness of breath"
+    ).set("Authorization", `Bearer ${authToken}`);
+
+    assert.equal(emergencyResponse.statusCode, 200);
+    assert.equal(emergencyResponse.body.mode, "emergency");
+    assert.equal(emergencyResponse.body.visit, "Emergency Care");
+    logStep("red-flag escalation works");
+
+    const historyResponse = await request(app)
+      .get("/api/symptoms/history")
+      .set("Authorization", `Bearer ${authToken}`);
+
+    assert.equal(historyResponse.statusCode, 200);
+    assert.ok(historyResponse.body.history.length >= 4);
+    assert.equal(historyResponse.body.history[0].query, "chest pain and shortness of breath");
+    logStep("recommendation history persists");
 
     const chatResponse = await request(app)
       .post("/api/chat")

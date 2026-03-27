@@ -92,12 +92,21 @@ const run = async () => {
     console.log("Verified reports endpoint.");
 
     const symptomResponse = await fetch(
-      `${baseUrl}/api/symptoms/recommendation?symptom=fever`
+      `${baseUrl}/api/symptoms/recommendation?symptom=fever`,
+      { headers: authHeaders }
     );
     const symptomData = await symptomResponse.json();
     assert(symptomResponse.ok, "Symptom endpoint failed.");
     assert(symptomData.found === true, "Symptom recommendation did not match fever.");
     console.log("Verified symptom recommendation endpoint.");
+
+    const historyResponse = await fetch(`${baseUrl}/api/symptoms/history`, {
+      headers: authHeaders,
+    });
+    const historyData = await historyResponse.json();
+    assert(historyResponse.ok, "Symptom history endpoint failed.");
+    assert(historyData.history.length > 0, "Symptom history returned no entries.");
+    console.log("Verified symptom history endpoint.");
 
     const chatResponse = await fetch(`${baseUrl}/api/chat`, {
       method: "POST",

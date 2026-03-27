@@ -1,10 +1,9 @@
-const { doctors, symptoms, defaultUser, starterAppointments } = require("../config/seed-data");
+const { doctors, defaultUser, starterAppointments } = require("../config/seed-data");
 const { hashPassword } = require("../utils/password");
 const { createUserRecord } = require("../services/user-service");
 const { createStarterReportsForUser } = require("../services/report-service");
 const { UserModel } = require("../models/user-model");
 const { DoctorModel } = require("../models/doctor-model");
-const { SymptomModel } = require("../models/symptom-model");
 const { AppointmentModel } = require("../models/appointment-model");
 
 const bootstrapData = async () => {
@@ -23,11 +22,6 @@ const bootstrapData = async () => {
         availableSlots: doctor.availableSlots,
       }))
     );
-  }
-
-  const symptomCount = await SymptomModel.countDocuments();
-  if (symptomCount === 0) {
-    await SymptomModel.insertMany(symptoms);
   }
 
   let seededUser = await UserModel.findOne({ email: defaultUser.email }).lean();

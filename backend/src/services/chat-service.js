@@ -32,8 +32,22 @@ const getChatReply = async ({ userName, message }) => {
   const recommendation = await getRecommendation(cleanMessage);
 
   if (recommendation.found) {
+    if (recommendation.mode === "emergency") {
+      return {
+        reply: `${recommendation.advice} Please seek ${recommendation.visit.toLowerCase()} now rather than relying only on self-treatment.`,
+        recommendation,
+      };
+    }
+
+    if (recommendation.mode === "fallback" || recommendation.mode === "unknown") {
+      return {
+        reply: `${recommendation.advice} The safest next step would be to consider a ${recommendation.visit}.`,
+        recommendation,
+      };
+    }
+
     return {
-      reply: `Based on what you shared, ${recommendation.symptom.toLowerCase()} is often handled first with ${recommendation.medicine}. ${recommendation.advice} If symptoms worsen, book a ${recommendation.visit}.`,
+      reply: `Based on what you shared, the closest match is ${recommendation.symptom.toLowerCase()}. First-line support often includes ${recommendation.medicine}. ${recommendation.advice} If symptoms worsen, book a ${recommendation.visit}.`,
       recommendation,
     };
   }

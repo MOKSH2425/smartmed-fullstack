@@ -119,6 +119,7 @@ export const api = {
     downloadFile(`/api/reports/${reportId}/download`, `${title}.txt`),
   getSymptomRecommendation: (symptom) =>
     request(`/api/symptoms/recommendation?symptom=${encodeURIComponent(symptom)}`),
+  getSymptomHistory: () => request("/api/symptoms/history"),
   sendChatMessage: (message) =>
     request("/api/chat", { method: "POST", body: { message } }),
 };

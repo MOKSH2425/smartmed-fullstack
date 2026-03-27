@@ -143,6 +143,74 @@ const updateSettings = async (userId, input) => {
   return updatedUser.settings;
 };
 
+const formatRecommendationHistoryEntry = (entry) => ({
+  query: entry.query,
+  mode: entry.mode,
+  confidence: entry.confidence || "",
+  symptom: entry.symptom,
+  medicine: entry.medicine || "",
+  advice: entry.advice || "",
+  visit: entry.visit || "",
+  severity: entry.severity || "",
+  urgency: entry.urgency || "",
+  matchedSymptoms: Array.isArray(entry.matchedSymptoms) ? entry.matchedSymptoms : [],
+  bodySystems: Array.isArray(entry.bodySystems) ? entry.bodySystems : [],
+  explanation: Array.isArray(entry.explanation) ? entry.explanation : [],
+  createdAt: entry.createdAt,
+});
+
+const addRecommendationHistory = async (userId, { query, recommendation }) => {
+  const entry = {
+    query: String(query || "").trim(),
+    mode: recommendation.mode || "unknown",
+    confidence: recommendation.confidence || "",
+    symptom: recommendation.symptom || "Recommendation",
+    medicine: recommendation.medicine || "",
+    advice: recommendation.advice || "",
+    visit: recommendation.visit || "",
+    severity: recommendation.severity || "",
+    urgency: recommendation.urgency || "",
+    matchedSymptoms: Array.isArray(recommendation.matchedSymptoms)
+      ? recommendation.matchedSymptoms
+      : [],
+    bodySystems: Array.isArray(recommendation.bodySystems) ? recommendation.bodySystems : [],
+    explanation: Array.isArray(recommendation.explanation) ? recommendation.explanation : [],
+    createdAt: new Date(),
+  };
+
+  const updatedUser = await UserModel.findByIdAndUpdate(
+    userId,
+    {
+      $push: {
+        recommendationHistory: {
+          $each: [entry],
+          $position: 0,
+          $slice: 12,
+        },
+      },
+    },
+    { returnDocument: "after", runValidators: true, lean: true }
+  );
+
+  if (!updatedUser) {
+    throw new HttpError(404, "User recommendation history was not found.");
+  }
+
+  return formatRecommendationHistoryEntry(updatedUser.recommendationHistory[0] || entry);
+};
+
+const getRecommendationHistory = async (userId) => {
+  const user = await getUserById(userId);
+
+  if (!user) {
+    throw new HttpError(404, "User recommendation history was not found.");
+  }
+
+  return Array.isArray(user.recommendationHistory)
+    ? user.recommendationHistory.map(formatRecommendationHistoryEntry)
+    : [];
+};
+
 module.exports = {
   defaultSettings,
   sanitizeUser,
@@ -155,4 +223,6 @@ module.exports = {
   updateProfile,
   getSettings,
   updateSettings,
+  addRecommendationHistory,
+  getRecommendationHistory,
 };

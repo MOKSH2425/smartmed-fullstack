@@ -7,6 +7,8 @@ const { DoctorModel } = require("../models/doctor-model");
 const { AppointmentModel } = require("../models/appointment-model");
 
 const bootstrapData = async () => {
+  const currentSlugs = doctors.map((doctor) => doctor.id);
+
   // Upsert by slug (not insert-if-empty) so adding new doctors to seed-data.js
   // reaches an already-deployed database on the next server restart, instead
   // of silently being skipped because the collection already has documents.
@@ -30,6 +32,10 @@ const bootstrapData = async () => {
       },
     }))
   );
+
+  // Remove any doctor left over from an older seed list (e.g. the previous
+  // Western sample doctors) so the live database matches seed-data.js exactly.
+  await DoctorModel.deleteMany({ slug: { $nin: currentSlugs } });
 
   let seededUser = await UserModel.findOne({ email: defaultUser.email }).lean();
 

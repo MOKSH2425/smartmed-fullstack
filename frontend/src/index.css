@@ -4,27 +4,27 @@
   line-height: 1.5;
   font-weight: 400;
 
-  --bg-canvas: #eef4f1;
-  --bg-elevated: rgba(255, 255, 255, 0.76);
+  --bg-canvas: #e3ecee;
+  --bg-elevated: rgba(255, 255, 255, 0.85);
   --bg-panel: #ffffff;
-  --bg-soft: #f4f8f9;
+  --bg-soft: #eef3f4;
   --bg-strong: #07111a;
-  --surface-tint: rgba(80, 192, 168, 0.14);
+  --surface-tint: rgba(15, 118, 110, 0.1);
 
-  --text-main: #10202b;
-  --text-muted: #5f7383;
+  --text-main: #0d1b24;
+  --text-muted: #4b5f6d;
   --text-inverse: #f4fbf8;
 
   --primary: #0f766e;
-  --primary-strong: #0d5d59;
+  --primary-strong: #0a4a45;
   --secondary: #1d4ed8;
-  --accent: #14b8a6;
+  --accent: #0d9488;
 
-  --border-soft: rgba(157, 189, 197, 0.4);
-  --border-strong: rgba(89, 126, 136, 0.22);
+  --border-soft: rgba(15, 60, 70, 0.14);
+  --border-strong: rgba(15, 60, 70, 0.24);
 
-  --shadow-soft: 0 16px 35px rgba(60, 90, 108, 0.12);
-  --shadow-strong: 0 24px 55px rgba(17, 34, 47, 0.16);
+  --shadow-soft: 0 16px 32px rgba(15, 40, 55, 0.1);
+  --shadow-strong: 0 26px 55px rgba(15, 40, 55, 0.16);
   --radius-card: 1.5rem;
 }
 
@@ -68,9 +68,9 @@ body {
   min-width: 320px;
   min-height: 100vh;
   background:
-    radial-gradient(circle at top left, rgba(19, 153, 132, 0.16), transparent 34%),
-    radial-gradient(circle at top right, rgba(30, 80, 216, 0.12), transparent 28%),
-    linear-gradient(180deg, #f5fbf8 0%, var(--bg-canvas) 44%, #edf2f7 100%);
+    radial-gradient(circle at top left, rgba(13, 148, 136, 0.22), transparent 32%),
+    radial-gradient(circle at top right, rgba(29, 78, 216, 0.16), transparent 26%),
+    linear-gradient(180deg, #f2f8f7 0%, var(--bg-canvas) 46%, #dbe6e9 100%);
   color: var(--text-main);
   transition: background-color 240ms ease, color 240ms ease;
 }

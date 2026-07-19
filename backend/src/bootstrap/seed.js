@@ -7,22 +7,29 @@ const { DoctorModel } = require("../models/doctor-model");
 const { AppointmentModel } = require("../models/appointment-model");
 
 const bootstrapData = async () => {
-  const doctorCount = await DoctorModel.countDocuments();
-  if (doctorCount === 0) {
-    await DoctorModel.insertMany(
-      doctors.map((doctor) => ({
-        slug: doctor.id,
-        name: doctor.name,
-        specialty: doctor.specialty,
-        location: doctor.location,
-        clinic: doctor.clinic,
-        exp: doctor.exp,
-        rating: doctor.rating,
-        about: doctor.about,
-        availableSlots: doctor.availableSlots,
-      }))
-    );
-  }
+  // Upsert by slug (not insert-if-empty) so adding new doctors to seed-data.js
+  // reaches an already-deployed database on the next server restart, instead
+  // of silently being skipped because the collection already has documents.
+  await DoctorModel.bulkWrite(
+    doctors.map((doctor) => ({
+      updateOne: {
+        filter: { slug: doctor.id },
+        update: {
+          $set: {
+            name: doctor.name,
+            specialty: doctor.specialty,
+            location: doctor.location,
+            clinic: doctor.clinic,
+            exp: doctor.exp,
+            rating: doctor.rating,
+            about: doctor.about,
+            availableSlots: doctor.availableSlots,
+          },
+        },
+        upsert: true,
+      },
+    }))
+  );
 
   let seededUser = await UserModel.findOne({ email: defaultUser.email }).lean();
 

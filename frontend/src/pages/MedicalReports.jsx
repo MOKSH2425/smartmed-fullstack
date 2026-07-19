@@ -62,14 +62,30 @@ const MedicalReports = () => {
       ) : reports.length === 0 ? (
         <section className="card content-card empty-state">
           <h3>No reports yet</h3>
-          <p>Your reports will appear here once they are available.</p>
+          <p>
+            Reports are generated automatically once you run the Symptom Checker
+            and it finds a confident match — nothing is pre-filled here.
+          </p>
+          <button
+            type="button"
+            className="btn"
+            style={{ marginTop: '1rem', width: 'fit-content' }}
+            onClick={() => navigate('/symptom')}
+          >
+            Run symptom checker
+          </button>
         </section>
       ) : (
         <section className="report-list">
           {reports.map((report) => (
             <article key={report.id} className="card report-item">
               <div style={{ flex: 1, minWidth: '16rem' }}>
-                <p className="section-subtitle">{report.type}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <p className="section-subtitle" style={{ margin: 0 }}>{report.type}</p>
+                  {report.source === 'symptom-checker' && (
+                    <span className="status-pill status-pill--complete">Auto-generated</span>
+                  )}
+                </div>
                 <h3 style={{ marginTop: '0.25rem' }}>{report.title}</h3>
                 <p style={{ marginTop: '0.35rem' }}>
                   Referenced by <strong>{report.doctorName}</strong> on {report.date}

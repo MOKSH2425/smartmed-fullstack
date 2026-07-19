@@ -17,7 +17,8 @@
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "mongoose": "^9.2.1",
-    "nodemon": "^3.1.11"
+    "nodemon": "^3.1.11",
+    "pdfkit": "^0.19.1"
   },
   "devDependencies": {
     "mongodb-memory-server": "^11.0.1",

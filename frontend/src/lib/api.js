@@ -116,7 +116,7 @@ export const api = {
     request("/api/users/settings", { method: "PUT", body: payload }),
   getReports: () => request("/api/reports"),
   downloadReport: (reportId, title) =>
-    downloadFile(`/api/reports/${reportId}/download`, `${title}.txt`),
+    downloadFile(`/api/reports/${reportId}/download`, `${title}.pdf`),
   getSymptomRecommendation: (symptom) =>
     request(`/api/symptoms/recommendation?symptom=${encodeURIComponent(symptom)}`),
   getSymptomHistory: () => request("/api/symptoms/history"),

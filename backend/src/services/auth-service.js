@@ -11,7 +11,6 @@ const {
   getUserByEmail,
   getUserById,
 } = require("./user-service");
-const { createStarterReportsForUser } = require("./report-service");
 
 const createAuthResponse = (user) => ({
   token: createToken(
@@ -53,7 +52,6 @@ const signup = async ({ name, email, password }) => {
     })
   );
 
-  await createStarterReportsForUser(createdUser._id);
   return createAuthResponse(createdUser.toObject());
 };
 

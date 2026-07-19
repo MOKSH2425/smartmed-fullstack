@@ -13,9 +13,43 @@ const sanitizeReport = (report) => ({
   doctorName: report.doctorName,
   type: report.type,
   status: report.status,
+  source: report.source || "manual",
+  summary: report.summary || "",
+  medicine: report.medicine || "",
+  advice: report.advice || "",
+  specialist: report.specialist || "",
+  severity: report.severity || "",
+  matchedSymptoms: report.matchedSymptoms || [],
   createdAt: report.createdAt,
   updatedAt: report.updatedAt,
 });
+
+const todayIso = () => new Date().toISOString().slice(0, 10);
+
+// Creates a real report tied to an actual Symptom Checker result, instead of
+// pre-seeding fake data. Only called when the checker produced a confident
+// condition match so the reports list stays meaningful.
+const createReportFromRecommendation = async (userId, symptomText, result) => {
+  const title = result.topCondition?.name || result.symptom || "Symptom Assessment";
+
+  const report = await ReportModel.create({
+    userId,
+    title,
+    date: todayIso(),
+    doctorName: "Dr. AI Assistant",
+    type: "AI Symptom Report",
+    status: "Ready",
+    source: "symptom-checker",
+    summary: `Generated from a symptom check for: ${symptomText}`,
+    medicine: result.medicine || "",
+    advice: result.advice || "",
+    specialist: result.visit || "",
+    severity: result.severity || "",
+    matchedSymptoms: result.matchedSymptoms || [],
+  });
+
+  return sanitizeReport(report.toObject());
+};
 
 const createStarterReportsForUser = async (userId) => {
   const existingCount = await ReportModel.countDocuments({ userId });
@@ -53,6 +87,7 @@ const getReportById = async (userId, reportId) => {
 
 module.exports = {
   createStarterReportsForUser,
+  createReportFromRecommendation,
   listReports,
   getReportById,
 };

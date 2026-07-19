@@ -41,6 +41,51 @@ const dashboardItems = [
   },
 ];
 
+const techStack = [
+  {
+    label: 'React 19',
+    detail: 'Frontend UI',
+    icon: (
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6">
+        <ellipse cx="12" cy="12" rx="10" ry="4.2" />
+        <ellipse cx="12" cy="12" rx="10" ry="4.2" transform="rotate(60 12 12)" />
+        <ellipse cx="12" cy="12" rx="10" ry="4.2" transform="rotate(120 12 12)" />
+        <circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none" />
+      </svg>
+    ),
+  },
+  {
+    label: 'Node.js + Express',
+    detail: 'API server',
+    icon: (
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6">
+        <path d="M12 2 3 7v10l9 5 9-5V7Z" />
+        <path d="M8 12h8" />
+      </svg>
+    ),
+  },
+  {
+    label: 'MongoDB',
+    detail: 'Database',
+    icon: (
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6">
+        <path d="M12 3c3 3 4.5 6.2 4.5 9.4A4.5 4.5 0 0 1 12 17a4.5 4.5 0 0 1-4.5-4.6C7.5 9.2 9 6 12 3Z" />
+        <path d="M12 17v4" />
+      </svg>
+    ),
+  },
+  {
+    label: 'JWT Auth',
+    detail: 'Protected routes',
+    icon: (
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6">
+        <rect x="5" y="11" width="14" height="9" rx="2" />
+        <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+      </svg>
+    ),
+  },
+];
+
 const Dashboard = () => {
   const { user } = useAuth();
   const firstName = user?.name?.trim()?.split(' ')[0] || 'there';
@@ -62,15 +107,25 @@ const Dashboard = () => {
             </p>
           </div>
 
-          <div className="dashboard-badge">
-            Full-stack mode active
+          <div className="dashboard-live-pill">
+            <span className="dashboard-live-dot" />
+            Live full-stack app
           </div>
         </div>
 
-        <div className="dashboard-badges">
-          <div className="dashboard-badge">MongoDB-backed records</div>
-          <div className="dashboard-badge">Protected patient routes</div>
-          <div className="dashboard-badge">Live booking workflow</div>
+        <div className="tech-strip">
+          <span className="tech-strip__label">Built with</span>
+          <div className="tech-strip__items">
+            {techStack.map((tech) => (
+              <div key={tech.label} className="tech-chip">
+                <span className="tech-chip__icon">{tech.icon}</span>
+                <span className="tech-chip__text">
+                  <strong>{tech.label}</strong>
+                  <span>{tech.detail}</span>
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

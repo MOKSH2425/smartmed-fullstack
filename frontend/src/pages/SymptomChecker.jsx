@@ -77,7 +77,11 @@ const SymptomChecker = () => {
         if (data.historyEntry) {
           setHistory((current) => [data.historyEntry, ...current].slice(0, 12));
         }
-        toast.success('Analysis complete.');
+        toast.success(
+          data.generatedReport
+            ? 'Analysis complete — a report was added to Medical Reports.'
+            : 'Analysis complete.'
+        );
       } else {
         toast.error(data.message || 'No recommendation found.');
       }
